@@ -1,4 +1,4 @@
-def VERSION = '1.0'
+def VERSION = '1.2'
 def ARTIFACT_ID = 'common-db'
 def GROUP_ID = 'top.jfunc.common'
 def TYPE = 'jar'
@@ -34,7 +34,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'top.jfunc.common', name: 'utils', version: '1.0'
+    compile group: 'top.jfunc.common', name: 'utils', version: '1.2'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.12.Final'
     compile group: 'org.springframework.data', name: 'spring-data-commons', version: '1.13.7.RELEASE'
 
