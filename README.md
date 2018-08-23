@@ -8,7 +8,7 @@ version:1.3
 #### 1.直接导入 
 compile 'top.jfunc.common:common-db:${version}'
 #### 2.其中的 Pagination和PageConverter是针对spring和hibernate环境的，不需要的话可以排除
-compile ('top.jfunc.common:common-db:1.3'){
+compile ('top.jfunc.common:common-db:${version}'){
         exclude group:'org.springframework.data'
         exclude group:'org.hibernate'
     }
