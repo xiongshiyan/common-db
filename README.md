@@ -1,6 +1,17 @@
 # common-db
-db builder, queryer.
+数据库、SQL查询一些方法的提取.
+## 使用方式
+下载本项目，gradle clean build得到的jar包引入工程即可。本项目依赖于[utils](https://gitee.com/xxssyyyyssxx/utils)
 
+version:1.3
+
+#### 1.直接导入 
+compile 'top.jfunc.common:common-db:${version}'
+#### 2.其中的 Pagination和PageConverter是针对spring和hibernate环境的，不需要的话可以排除
+compile ('top.jfunc.common:common-db:1.3'){
+        exclude group:'org.springframework.data'
+        exclude group:'org.hibernate'
+    }
 
 ### 1.QueryHelper
 
@@ -48,4 +59,4 @@ public interface Filter<T> extends Predicate<T>{
 
 ### 4.Pagination
 
-处理JPA环境下的复杂SQL查询
+处理JPA环境下的复杂SQL查询,配合QueryHelper有着奇妙的化学反应
