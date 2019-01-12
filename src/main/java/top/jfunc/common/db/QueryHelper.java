@@ -73,15 +73,15 @@ public class QueryHelper{
     /**
      * group by子句
      */
-    private StringBuilder groupByClause = new StringBuilder();
+    private StringBuilder groupByClause = null;
     /**
      * having子句
      */
-    private StringBuilder havingClause  = new StringBuilder();
+    private StringBuilder havingClause  = null;
     /**
      * order by子句
      */
-    private StringBuilder orderByClause = new StringBuilder();
+    private StringBuilder orderByClause = null;
     /**
      * limit子句
      */
@@ -336,13 +336,13 @@ public class QueryHelper{
      * @param asc true表示升序，false表示降序
      */
     public QueryHelper addOrderProperty(String propertyName, boolean asc){
-        if(orderByClause.length() == 0){
-            orderByClause = new StringBuilder(isUpper ? KW_ORDER_BY : KW_ORDER_BY.toLowerCase());
+        if(getOrderByClause().length() == 0){
+            getOrderByClause().append(isUpper ? KW_ORDER_BY : KW_ORDER_BY.toLowerCase());
         } else{
-            orderByClause.append(COMMA);
+            getOrderByClause().append(COMMA);
         }
 
-        orderByClause.append(propertyName + (asc ? (isUpper ? KW_ASC : KW_ASC.toLowerCase())
+        getOrderByClause().append(propertyName + (asc ? (isUpper ? KW_ASC : KW_ASC.toLowerCase())
                 : (isUpper ? KW_DESC : KW_DESC.toLowerCase())));
         return this;
     }
@@ -385,10 +385,10 @@ public class QueryHelper{
      * @param groupByName group by
      */
     public QueryHelper addGroupProperty(String groupByName){
-        if(groupByClause.length() == 0){
-            groupByClause = new StringBuilder(isUpper ? KW_GROUP_BY : KW_GROUP_BY.toLowerCase()).append(groupByName);
+        if(getGroupByClause().length() == 0){
+            getGroupByClause().append(isUpper ? KW_GROUP_BY : KW_GROUP_BY.toLowerCase()).append(groupByName);
         } else{
-            groupByClause.append(COMMA).append(groupByName);
+            getGroupByClause().append(COMMA).append(groupByName);
         }
         return this;
     }
@@ -411,10 +411,10 @@ public class QueryHelper{
      * @param params 参数
      */
     public QueryHelper addHaving(String having , Object... params){
-        if(havingClause.length() == 0){
-            havingClause = new StringBuilder(isUpper ? KW_HAVING : KW_HAVING.toLowerCase()).append(having);
+        if(getHavingClause().length() == 0){
+            getHavingClause().append(isUpper ? KW_HAVING : KW_HAVING.toLowerCase()).append(having);
         } else{
-            havingClause.append(isUpper ? KW_AND : KW_AND.toLowerCase()).append(having);
+            getHavingClause().append(isUpper ? KW_AND : KW_AND.toLowerCase()).append(having);
         }
 
         addParams(params);
@@ -562,8 +562,17 @@ public class QueryHelper{
      * @see QueryHelper#getSqlExceptSelect()
      */
     public String getSqlExceptSelectWithoutPadding(){
-        return new StringBuilder(fromClause).append(whereClause).append(groupByClause).append(havingClause)
-                .append(orderByClause).append(limitClause).toString();
+        StringBuilder builder = new StringBuilder(fromClause).append(whereClause);
+        if(null != groupByClause){
+            builder.append(groupByClause);
+        }
+        if(null != havingClause){
+            builder.append(havingClause);
+        }
+        if(null != orderByClause){
+            builder.append(orderByClause);
+        }
+        return builder.append(limitClause).toString();
     }
 
     /**
@@ -579,8 +588,17 @@ public class QueryHelper{
      * @see QueryHelper#getSql()
      */
     public String getSqlWithoutPadding(){
-        return new StringBuilder(select).append(fromClause).append(whereClause).append(groupByClause).append(havingClause)
-                .append(orderByClause).append(limitClause).toString();
+        StringBuilder builder = new StringBuilder(select).append(fromClause).append(whereClause);
+        if(null != groupByClause){
+            builder.append(groupByClause);
+        }
+        if(null != havingClause){
+            builder.append(havingClause);
+        }
+        if(null != orderByClause){
+            builder.append(orderByClause);
+        }
+        return builder.append(limitClause).toString();
     }
 
     private String paddingParam(String sql) {
@@ -614,7 +632,14 @@ public class QueryHelper{
      * @see QueryHelper#getSqlWithoutPadding()
      */
     public String getCountQuerySqlWithoutPadding(){
-        return  KW_SELECT + " COUNT(*) AS totalRow " + fromClause + whereClause + groupByClause + havingClause;
+        StringBuilder builder = new StringBuilder(KW_SELECT).append(" COUNT(*) AS totalRow ").append(fromClause).append(whereClause);
+        if(null != groupByClause){
+            builder.append(groupByClause);
+        }
+        if(null != havingClause){
+            builder.append(havingClause);
+        }
+        return builder.toString();
     }
     /**
      * 获取SQL中的参数值列表，List返回
@@ -672,6 +697,28 @@ public class QueryHelper{
         int i = buffer.lastIndexOf(separator);
         //去掉最后的separator
         return buffer.substring(0 , i);
+    }
+
+
+    public StringBuilder getOrderByClause() {
+        if(null == orderByClause){
+            orderByClause = new StringBuilder();
+        }
+        return orderByClause;
+    }
+
+    public StringBuilder getGroupByClause() {
+        if(null == groupByClause){
+            groupByClause = new StringBuilder();
+        }
+        return groupByClause;
+    }
+
+    public StringBuilder getHavingClause() {
+        if(null == havingClause){
+            havingClause = new StringBuilder();
+        }
+        return havingClause;
     }
 
     @Override
