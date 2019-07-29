@@ -23,7 +23,7 @@ public interface QueryBuilder {
     /**
      *  开头是否包含关键字SELECT[不算空格],没有就加上
      */
-    Pattern INCLUDE_SELECT = Pattern.compile("^(\\s*[sS][eE][lL][eE][cC][tT]\\s+)+(.|(\\r)?\\n)*");
+    /*Pattern INCLUDE_SELECT = Pattern.compile("^(\\s*[sS][eE][lL][eE][cC][tT]\\s+)+(.|(\\r)?\\n)*");*/
 
     /**
      *  开头是否包含FROM关键字[不算空格],没有就加上
@@ -32,7 +32,9 @@ public interface QueryBuilder {
     /**
      *  SQL语句的关键字
      */
-    String KW_SELECT       = "SELECT ";
+    String BLANK           = " ";
+    String SELECT          = "SELECT";
+    String KW_SELECT       = SELECT + BLANK;
     String KW_FROM         = " FROM ";
     String KW_LEFT_JOIN    = " LEFT JOIN ";
     String KW_RIGHT_JOIN   = " RIGHT JOIN ";
@@ -51,7 +53,6 @@ public interface QueryBuilder {
     String KW_UNION        = " UNION ";
     String KW_UNION_ALL    = " UNION ALL ";
     String COMMA           = " , ";
-    String BLANK           = " ";
     String QUOTE           = "'";
     String LEFT_BRAKET     = " ( ";
     String RIGHT_BRAKET    = " ) ";

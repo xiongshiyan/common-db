@@ -73,13 +73,30 @@ public class QueryBuilderImpl implements QueryMapBuilder {
         fromClause.append(QueryBuilder.join(COMMA, prefix, froms));
     }
     private String addSelectIfNecessary(String select) {
-        if(INCLUDE_SELECT.matcher(select).matches()){
+        //if(INCLUDE_SELECT.matcher(select).matches()){
+        //去除空格取前6个[select]
+        if(startsWith(select , SELECT)){
             //包含了select
             return select;
         }else {
             //没有包含select
             return KW_SELECT + select;
         }
+    }
+
+    /**
+     * 判断一个字符串是否以某个关键词开头，不区分大小写
+     * @param src 原字符串
+     * @param keyWord 关键词
+     * @return 是否以之开头
+     */
+    private boolean startsWith(String src , String keyWord){
+        String trim = src.trim();
+        int len = keyWord.length();
+        if(trim.length() < SELECT.length()){
+            return false;
+        }
+        return trim.substring(0 , len).toUpperCase().startsWith(keyWord.toUpperCase());
     }
 
     @Override

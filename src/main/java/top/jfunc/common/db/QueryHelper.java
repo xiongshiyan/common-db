@@ -18,10 +18,11 @@ public class QueryHelper{
      */
     private static final String SQL_INJECT_CHARS = "([';]+|(--)+|(\\s+([aA][nN][dD])\\s+)+|(\\s+([oO][rR])\\s+)+)";
     /**
+     * 不用此正则表达式来判断，因为可能在SQL语句较长的时候发生栈溢出异常
      *  开头是否包含关键字SELECT[不算空格],没有就加上
      */
-    private static final Pattern INCLUDE_SELECT = Pattern.compile("^(\\s*[sS][eE][lL][eE][cC][tT]\\s+)+(.|(\\r)?\\n)*");
-
+    /*private static final Pattern INCLUDE_SELECT = Pattern.compile("^(\\s*[sS][eE][lL][eE][cC][tT]\\s+)+(.|(\\r)?\\n)*");
+    */
     /**
      *  开头是否包含FROM关键字[不算空格],没有就加上
      */
@@ -30,7 +31,9 @@ public class QueryHelper{
     /**
      *  SQL语句的关键字
      */
-    private static final String KW_SELECT       = "SELECT ";
+    private static final String BLANK           = " ";
+    private static final String SELECT          = "SELECT";
+    private static final String KW_SELECT       = SELECT + BLANK;
     private static final String KW_FROM         = " FROM ";
     private static final String KW_LEFT_JOIN    = " LEFT JOIN ";
     private static final String KW_RIGHT_JOIN   = " RIGHT JOIN ";
@@ -49,7 +52,6 @@ public class QueryHelper{
     public  static final String KW_UNION        = " UNION ";
     public  static final String KW_UNION_ALL    = " UNION ALL ";
     private static final String COMMA           = " , ";
-    private static final String BLANK           = " ";
     private static final String QUOTE           = "'";
     private static final String LEFT_BRAKET     = " ( ";
     private static final String RIGHT_BRAKET    = " ) ";
@@ -118,13 +120,30 @@ public class QueryHelper{
         fromClause.append(join(COMMA, prefix, froms));
     }
     private String addSelectIfNecessary(String select) {
-        if(INCLUDE_SELECT.matcher(select).matches()){
+        //if(INCLUDE_SELECT.matcher(select).matches()){
+        //去除空格取前6个[select]
+        if(startsWith(select , SELECT)){
             //包含了select
             return select;
         }else {
             //没有包含select
             return KW_SELECT + select;
         }
+    }
+
+    /**
+     * 判断一个字符串是否以某个关键词开头，不区分大小写
+     * @param src 原字符串
+     * @param keyWord 关键词
+     * @return 是否以之开头
+     */
+    private boolean startsWith(String src , String keyWord){
+        String trim = src.trim();
+        int len = keyWord.length();
+        if(trim.length() < SELECT.length()){
+            return false;
+        }
+        return trim.substring(0 , len).toUpperCase().startsWith(keyWord.toUpperCase());
     }
 
     public QueryHelper keyWordUpper() {
