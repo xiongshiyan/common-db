@@ -1,7 +1,6 @@
 package top.jfunc.common.db;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 
 /**
@@ -26,15 +25,16 @@ public class QueryHelper{
     /**
      *  开头是否包含FROM关键字[不算空格],没有就加上
      */
-    private static final Pattern INCLUDE_FROM   = Pattern.compile("^(\\s*[fF][rR][oO][mM]\\s+)+(.|(\\r)?\\n)*");
-
+    /*private static final Pattern INCLUDE_FROM   = Pattern.compile("^(\\s*[fF][rR][oO][mM]\\s+)+(.|(\\r)?\\n)*");
+     */
     /**
      *  SQL语句的关键字
      */
     private static final String BLANK           = " ";
     private static final String SELECT          = "SELECT";
+    private static final String FROM            = "FROM";
     private static final String KW_SELECT       = SELECT + BLANK;
-    private static final String KW_FROM         = " FROM ";
+    private static final String KW_FROM         = BLANK + FROM + BLANK;
     private static final String KW_LEFT_JOIN    = " LEFT JOIN ";
     private static final String KW_RIGHT_JOIN   = " RIGHT JOIN ";
     private static final String KW_INNER_JOIN   = " INNER JOIN ";
@@ -114,7 +114,8 @@ public class QueryHelper{
     public QueryHelper(String select, String... froms){
         this.select = addSelectIfNecessary(select);
         String prefix = KW_FROM ;
-        if(INCLUDE_FROM.matcher(froms[0]).matches()){
+        //if(INCLUDE_FROM.matcher(froms[0]).matches()){
+        if(startsWith(froms[0] , FROM)){
             prefix = BLANK ;
         }
         fromClause.append(join(COMMA, prefix, froms));
@@ -140,7 +141,7 @@ public class QueryHelper{
     private boolean startsWith(String src , String keyWord){
         String trim = src.trim();
         int len = keyWord.length();
-        if(trim.length() < SELECT.length()){
+        if(trim.length() < len){
             return false;
         }
         return trim.substring(0 , len).toUpperCase().startsWith(keyWord.toUpperCase());
