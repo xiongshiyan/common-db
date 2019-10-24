@@ -115,15 +115,16 @@ public class QueryHelper{
         this.select = addSelectIfNecessary(select);
         String prefix = KW_FROM ;
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
-        if(startsWith(froms[0] , FROM)){
+        //去除空格取前5个[from ]
+        if(startsWith(froms[0] , FROM + BLANK)){
             prefix = BLANK ;
         }
         fromClause.append(join(COMMA, prefix, froms));
     }
     private String addSelectIfNecessary(String select) {
         //if(INCLUDE_SELECT.matcher(select).matches()){
-        //去除空格取前6个[select]
-        if(startsWith(select , SELECT)){
+        //去除空格取前6个[select ]
+        if(startsWith(select , SELECT + BLANK)){
             //包含了select
             return select;
         }else {
@@ -138,7 +139,7 @@ public class QueryHelper{
      * @param keyWord 关键词
      * @return 是否以之开头
      */
-    private boolean startsWith(String src , String keyWord){
+    private static boolean startsWith(String src , String keyWord){
         String trim = src.trim();
         int len = keyWord.length();
         if(trim.length() < len){
