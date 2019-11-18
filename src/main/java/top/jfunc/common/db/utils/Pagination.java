@@ -2,6 +2,7 @@ package top.jfunc.common.db.utils;
 
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import top.jfunc.common.db.QueryHelper;
 import top.jfunc.common.db.bean.Page;
 import top.jfunc.common.db.bean.Record;
 import top.jfunc.common.utils.Map2Bean;
@@ -16,9 +17,9 @@ import java.util.regex.Pattern;
 /**
  * @author xiongshiyan at 2018/5/9
  * @see top.jfunc.common.db.QueryHelper
- * @see Record
- * SQL语句用{@see QueryHelper}封装。结果集用JavaBean或者{@see Record}来封装。JavaBean需要保证别名就是属性。
- * 可以使用{@see QueryHelper}完全处理参数，也可以不处理，支持?和:的方式
+ * @see top.jfunc.common.db.bean.Record
+ * SQL语句用{@link QueryHelper}封装。结果集用JavaBean或者{@link Record}来封装。JavaBean需要保证别名就是属性。
+ * 可以使用{@link QueryHelper}完全处理参数，也可以不处理，支持?和:的方式
  */
 public class Pagination {
     private EntityManager entityManager;
@@ -86,9 +87,7 @@ public class Pagination {
             query.setParameter(i , params[i]);
         }
 
-        List list = getList(query, clazz);
-
-        return list;
+        return (List<T>)getList(query, clazz);
     }
     /**
      * 查询列表
@@ -106,9 +105,7 @@ public class Pagination {
             searchMap.forEach(query::setParameter);
         }
 
-        List list = getList(query, clazz);
-
-        return list;
+        return (List<T>)getList(query, clazz);
     }
 
 
@@ -182,8 +179,8 @@ public class Pagination {
      * @param pageNumber pageNumber
      * @param pageSize pageSize
      * @param isGroupBySql 是否包含Group by语句，影响总行数
-     * @param nativeSQL 原生SQL语句 {@see QueryHelper}
-     * @param nativeCountSQL 原生求总行数的SQL语句 {@see QueryHelper}
+     * @param nativeSQL 原生SQL语句 {@link QueryHelper}
+     * @param nativeCountSQL 原生求总行数的SQL语句 {@link QueryHelper}
      * @param clazz JavaBean风格的DTO或者Record，需要用别名跟JavaBean对应
      * @param <T> 返回JavaBean风格的DTO或者Record
      * @param params 按照顺序给条件
@@ -244,7 +241,7 @@ public class Pagination {
      * @param pageSize pageSize
      * @param isGroupBySql 是否包含Group by语句，影响总行数
      * @param nativeSQL 原生SQL语句 {@see QueryHelper}
-     * @param nativeCountSQL 原生求总行数的SQL语句 {@see QueryHelper}
+     * @param nativeCountSQL 原生求总行数的SQL语句 {@link QueryHelper}
      * @param clazz JavaBean风格的DTO或者Record，需要用别名跟JavaBean对应
      * @param <T> 返回JavaBean风格的DTO或者Record
      * @param searchMap k-v条件
@@ -324,30 +321,6 @@ public class Pagination {
         });
         return list;
     }
-    /*private <T> List getList(org.hibernate.Query query, Class<T> clazz) {
-        final List list;
-
-        if(Record.class == clazz){
-            //返回Record
-            query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-            List mapList = query.list();
-            list = new ArrayList(mapList.size());
-            mapList.forEach(map->{
-                Map<String , Object> tmp = (Map<String , Object>) map;
-                list.add(new Record(tmp));
-            });
-        }else {
-            //返回JavaBean
-            //只能返回简单的Javabean，不具备级联特性
-            query.setResultTransformer(Transformers.aliasToBean(clazz));
-            list = query.list();
-        }
-        return list;
-    }*/
-
-
-
-
 
 
     private String getCountSQL(String sql){
