@@ -2,7 +2,6 @@ package db;
 
 import org.junit.Test;
 import top.jfunc.common.db.QueryHelper;
-
 /**
  * @author xiongshiyan at 2018/5/10
  * QueryHelper的简单测试，也是介绍其用法
@@ -109,13 +108,8 @@ public class QueryHelperTest {
         helper2.addCondition("tcoe.cmcc_id=co.id");
         helper2.addCondition("tcoe.user_id=mo.id");
 
-        String union = helper.union(helper2);
-        System.out.println(union);
-        String unionAll = helper.unionAll(helper2);
-        System.out.println(unionAll);
-
-        String s = helper.union(QueryHelper.KW_UNION, "select id,name from ss", "select id,name from aa", "select id,name from dd");
-        System.out.println(s);
+        /*String s = helper.union(UnionType.UNION, "select id,name from ss", "select id,name from aa", "select id,name from dd" , "select id,name from cc");
+        System.out.println(s);*/
     }
 }
 

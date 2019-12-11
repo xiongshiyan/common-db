@@ -3,7 +3,7 @@
 ## 使用方式
 下载本项目，gradle clean build得到的jar包引入工程即可。本项目依赖于[utils](https://gitee.com/xxssyyyyssxx/utils)
 
-version:1.8.0
+version:1.8.3
 
 #### 1.直接导入 
 compile 'top.jfunc.common:common-db:${version}'

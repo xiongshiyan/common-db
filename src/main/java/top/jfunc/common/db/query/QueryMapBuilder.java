@@ -4,22 +4,31 @@ import java.util.Map;
 
 
 /**
+ * 新增key-value类型的参数
  * @author xiongshiyan
  */
 public interface QueryMapBuilder extends QueryBuilder {
-    public QueryMapBuilder addMapCondition(String condition, Object... keyValue);
+    /**
+     * @param condition 具体条件
+     * @param keyValue 参数
+     */
+    QueryMapBuilder addMapCondition(String condition, Object... keyValue);
     default QueryMapBuilder addMapCondition(boolean append, String condition, Object... keyValue){
         if(append){
             addMapCondition(condition, keyValue);
         }
         return this;
     }
-    public QueryBuilder addMapHaving(String having, Object... keyValue);
+
+    /**
+     * 增加map类型的having子句
+     */
+    QueryBuilder addMapHaving(String having, Object... keyValue);
     default QueryBuilder addMapHaving(boolean append, String having, Object... keyValue){
         if(append){
             addMapHaving(having , keyValue);
         }
         return this;
     }
-    public Map<String, Object> getMapParameters();
+    Map<String, Object> getMapParameters();
 }

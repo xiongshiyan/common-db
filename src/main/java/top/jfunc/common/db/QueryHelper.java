@@ -1,5 +1,10 @@
 package top.jfunc.common.db;
 
+import top.jfunc.common.db.query.QueryMapBuilder;
+import top.jfunc.common.db.query.SqlKeyword;
+import top.jfunc.common.utils.CollectionUtil;
+import top.jfunc.common.utils.Joiner;
+
 import java.util.*;
 
 
@@ -8,53 +13,15 @@ import java.util.*;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY .. LIMIT ..
  * @author xiongshiyan
  */
-public class QueryHelper{
-
-    public static final boolean ASC = true;
-    public static final boolean DESC = false;
-    /**
-     *  替换掉SQL注入的那些字符 ['|;|--| and | or ]
-     */
-    private static final String SQL_INJECT_CHARS = "([';]+|(--)+|(\\s+([aA][nN][dD])\\s+)+|(\\s+([oO][rR])\\s+)+)";
-    /**
-     * 不用此正则表达式来判断，因为可能在SQL语句较长的时候发生栈溢出异常
-     *  开头是否包含关键字SELECT[不算空格],没有就加上
-     */
-    /*private static final Pattern INCLUDE_SELECT = Pattern.compile("^(\\s*[sS][eE][lL][eE][cC][tT]\\s+)+(.|(\\r)?\\n)*");
-    */
-    /**
-     *  开头是否包含FROM关键字[不算空格],没有就加上
-     */
-    /*private static final Pattern INCLUDE_FROM   = Pattern.compile("^(\\s*[fF][rR][oO][mM]\\s+)+(.|(\\r)?\\n)*");
-     */
+public class QueryHelper implements QueryMapBuilder {
     /**
      *  SQL语句的关键字
      */
     private static final String BLANK           = " ";
-    private static final String SELECT          = "SELECT";
-    private static final String FROM            = "FROM";
-    private static final String KW_SELECT       = SELECT + BLANK;
-    private static final String KW_FROM         = BLANK + FROM + BLANK;
-    private static final String KW_LEFT_JOIN    = " LEFT JOIN ";
-    private static final String KW_RIGHT_JOIN   = " RIGHT JOIN ";
-    private static final String KW_INNER_JOIN   = " INNER JOIN ";
-    private static final String KW_ON           = " ON ";
-    private static final String KW_WHERE        = " WHERE ";
-    private static final String KW_AND          = " AND ";
-    private static final String KW_OR           = " OR ";
-    private static final String KW_IN           = " IN ";
-    private static final String KW_GROUP_BY     = " GROUP BY ";
-    private static final String KW_HAVING       = " HAVING ";
-    private static final String KW_ORDER_BY     = " ORDER BY ";
-    private static final String KW_ASC          = " ASC ";
-    private static final String KW_DESC         = " DESC ";
-    private static final String KW_LIMIT        = " LIMIT ";
-    public  static final String KW_UNION        = " UNION ";
-    public  static final String KW_UNION_ALL    = " UNION ALL ";
-    private static final String COMMA           = " , ";
+    private static final String COMMA           = leftRightBlank(",");
     private static final String QUOTE           = "'";
-    private static final String LEFT_BRAKET     = " ( ";
-    private static final String RIGHT_BRAKET    = " ) ";
+    private static final String LEFT_BRAKET     = leftRightBlank("(");
+    private static final String RIGHT_BRAKET    = leftRightBlank(")");
 
     /**
      * 关键字连接是否是大写 , 但是由于select 和 from 子句是在构造器中 , 需自行指定
@@ -104,7 +71,7 @@ public class QueryHelper{
      */
     public QueryHelper(String select, String tableName, String alias){
         this.select = addSelectIfNecessary(select);
-        fromClause.append(KW_FROM).append(tableName).append(BLANK).append(alias);
+        fromClause.append(leftRightBlankWithCase(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
 
     /**
@@ -113,23 +80,24 @@ public class QueryHelper{
      */
     public QueryHelper(String select, String... froms){
         this.select = addSelectIfNecessary(select);
-        String prefix = KW_FROM ;
+        String prefix = leftRightBlankWithCase(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
         //去除空格取前5个[from ]
-        if(startsWith(froms[0] , FROM + BLANK)){
+        if(startsWith(froms[0] , rightBlankWithCase(SqlKeyword.FROM.getKeyword()))){
             prefix = BLANK ;
         }
-        fromClause.append(join(COMMA, prefix, froms));
+        fromClause.append(prefix).append(Joiner.on(COMMA).join(froms));
     }
     private String addSelectIfNecessary(String select) {
         //if(INCLUDE_SELECT.matcher(select).matches()){
         //去除空格取前6个[select ]
-        if(startsWith(select , SELECT + BLANK)){
+        String selectRightBlank = rightBlankWithCase(SqlKeyword.SELECT.getKeyword());
+        if(startsWith(select , selectRightBlank)){
             //包含了select
             return select;
         }else {
             //没有包含select
-            return KW_SELECT + select;
+            return selectRightBlank + select;
         }
     }
 
@@ -160,15 +128,18 @@ public class QueryHelper{
     /**
      * 添加left join子句
      * @param joinClause LEFT JOIN 子句
-     * @param on on条件 有一个添加在后面 , 不要带 ON 了 , 没有必须使用on方法添加
+     * @param onClause on条件 有一个添加在后面 , 不要带 ON 了 , 没有必须使用on方法添加
      */
-    public QueryHelper leftJoin(String joinClause , String on){
-        fromClause.append(isUpper ? KW_LEFT_JOIN : KW_LEFT_JOIN.toLowerCase()).append(joinClause);
-        fromClause.append(join(BLANK, isUpper ? KW_ON : KW_ON.toLowerCase(), on));
+    @Override
+    public QueryHelper leftJoin(String joinClause , String onClause){
+        leftJoin(joinClause);
+        on(onClause);
         return this;
     }
+    @Override
     public QueryHelper leftJoin(String joinClause){
-        fromClause.append(isUpper ? KW_LEFT_JOIN : KW_LEFT_JOIN.toLowerCase()).append(joinClause);
+        String leftJoin = leftRightBlankWithCase(SqlKeyword.LEFT_JOIN.getKeyword());
+        fromClause.append(leftJoin).append(joinClause);
         return this;
     }
     //////////////////////////////////////2.2.rightJoin方法,添加RIGHT JOIN子句/////////////////////////////////////
@@ -176,13 +147,16 @@ public class QueryHelper{
      * 添加right join子句
      * @param joinClause RIGHT JOIN 子句
      */
-    public QueryHelper rightJoin(String joinClause , String on){
-        fromClause.append(isUpper ? KW_RIGHT_JOIN : KW_RIGHT_JOIN.toLowerCase()).append(joinClause);
-        fromClause.append(join(BLANK, isUpper ? KW_ON : KW_ON.toLowerCase() , on));
+    @Override
+    public QueryHelper rightJoin(String joinClause , String onClause){
+        rightJoin(joinClause);
+        on(onClause);
         return this;
     }
+    @Override
     public QueryHelper rightJoin(String joinClause){
-        fromClause.append(isUpper ? KW_RIGHT_JOIN : KW_RIGHT_JOIN.toLowerCase()).append(joinClause);
+        String rightJoin = leftRightBlankWithCase(SqlKeyword.RIGHT_JOIN.getKeyword());
+        fromClause.append(rightJoin).append(joinClause);
         return this;
     }
     //////////////////////////////////////2.3.innerJoin方法,添加INNER JOIN子句/////////////////////////////////////
@@ -190,13 +164,16 @@ public class QueryHelper{
      * 添加inner join子句
      * @param joinClause INNER JOIN 子句
      */
-    public QueryHelper innerJoin(String joinClause , String on){
-        fromClause.append(isUpper ? KW_INNER_JOIN : KW_INNER_JOIN.toLowerCase()).append(joinClause);
-        fromClause.append(join(BLANK, isUpper ? KW_ON : KW_ON.toLowerCase() , on));
+    @Override
+    public QueryHelper innerJoin(String joinClause , String onClause){
+        innerJoin(joinClause);
+        on(onClause);
         return this;
     }
+    @Override
     public QueryHelper innerJoin(String joinClause){
-        fromClause.append(isUpper ? KW_INNER_JOIN : KW_INNER_JOIN.toLowerCase()).append(joinClause);
+        String innerJoin = leftRightBlankWithCase(SqlKeyword.INNER_JOIN.getKeyword());
+        fromClause.append(innerJoin).append(joinClause);
         return this;
     }
     //////////////////////////////////////2.4.on方法,join子句添加on条件/////////////////////////////////////
@@ -205,8 +182,10 @@ public class QueryHelper{
      * 添加on子句 , 不要带ON 了 , 可以被 left、right、inner join子句使用  , 但是必须紧跟在JOIN 子句后面
      * @param onClause ON 子句
      */
+    @Override
     public QueryHelper on(String onClause){
-        fromClause.append(isUpper ? KW_ON : KW_ON.toLowerCase()).append(onClause);
+        String on = leftRightBlankWithCase(SqlKeyword.ON.getKeyword());
+        fromClause.append(on).append(onClause);
         return this;
     }
 
@@ -218,6 +197,7 @@ public class QueryHelper{
      * @param condition 具体条件
      * @param params 参数,QueryHelper只支持？参数，如果你想用Query的具名参数，就不要设置参数，产生{Query}后再调用setParameter设置
      */
+    @Override
     public QueryHelper addCondition(String condition, Object... params){
         // 拼接条件
         addWhere(condition);
@@ -226,59 +206,17 @@ public class QueryHelper{
         return this;
     }
 
-    /**
-     * 跟 addCondition(String, Object...) 的意义完全一致
-     * @see QueryHelper#addCondition(String, Object...)
-     */
-    public QueryHelper and(String condition, Object... params){
-        // 拼接条件
-        addWhere(condition);
-        // 添加参数
-        addParams(params);
-        return this;
-    }
-
-    /**
-     * 根据条件决定是否添加条件
-     * @see QueryHelper#and(boolean, String, Object...)
-     */
-    public QueryHelper addCondition(boolean append, String condition, Object... params){
-        if(append){
-            addCondition(condition, params);
-        }
-        return this;
-    }
-
-    /**
-     * 根据条件决定是否添加条件
-     * @see QueryHelper#addCondition(boolean, String, Object...)
-     */
-    public QueryHelper and(boolean append, String condition, Object... params){
-        if(append){
-            and(condition, params);
-        }
-        return this;
-    }
-
     ////////////////////////////4.or/orIf方法,添加条件,多个用 OR 连接////////////////////////////
     /**
      * 添加 OR 子句
      */
+    @Override
     public QueryHelper or(String condition, Object... params){
         //OR 子句一般来说肯定不会是第一个，所以此时肯定存在了 WHERE
-        whereClause.append(isUpper ? KW_OR : KW_OR.toLowerCase()).append(condition);
+        String or = leftRightBlankWithCase(SqlKeyword.OR.getKeyword());
+        whereClause.append(or).append(condition);
         // 添加参数
         addParams(params);
-        return this;
-    }
-    /**
-     * 根据条件决定是否添加条件
-     * @see QueryHelper#or(String, Object...)
-     */
-    public QueryHelper or(boolean append , String condition, Object... params){
-        if(append){
-            or(condition, params);
-        }
         return this;
     }
     ////////////////////////////5.addMapCondition方法,添加 Map 条件,多个用 AND 连接////////////////////////////
@@ -287,6 +225,7 @@ public class QueryHelper{
      * @param condition 具体条件
      * @param keyValue 模式k1,v1,k2,v2...(k1,k2必须是String)
      */
+    @Override
     public QueryHelper addMapCondition(String condition, Object... keyValue){
         // 拼接参数
         addWhere(condition);
@@ -297,46 +236,35 @@ public class QueryHelper{
         return this;
     }
 
-    /**
-     * @param append 是否拼装此条件
-     * @param condition 具体条件
-     * @param keyValue 参数
-     */
-    public QueryHelper addMapCondition(boolean append, String condition, Object... keyValue){
-        if(append){
-            addMapCondition(condition, keyValue);
-        }
-        return this;
-    }
-
     private void addWhere(String condition) {
         // 拼接
         if(whereClause.length() == 0){
-            whereClause = new StringBuilder(isUpper ? KW_WHERE : KW_WHERE.toLowerCase()).append(condition);
+            String where = leftRightBlankWithCase(SqlKeyword.WHERE.getKeyword());
+            whereClause = new StringBuilder(where).append(condition);
         } else{
-            whereClause.append(isUpper ? KW_AND : KW_AND.toLowerCase()).append(condition);
+            String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
+            whereClause.append(and).append(condition);
         }
     }
 
     ///////////////////////////////////6.addIn方法,添加 IN 条件/////////////////////////////////////////////
-    /**
-     * addIn("d.id" , 1,2,3) - > d.id IN (1,2,3)
-     * addIn("d.phone" , "1","2","3") - > d.id IN ('1','2','3')
-     * @param what 添加 IN 语句
-     * @param ins In条件
-     */
-    public <T> QueryHelper addIn(String what , T... ins){
-        if(null == ins || ins.length == 0){
-            throw new IllegalArgumentException("必须至少包含一个in条件");
+
+    @Override
+    public <T> QueryHelper addIn(String what , List<T> ins){
+        if(CollectionUtil.isEmpty(ins)){
+            return this;
         }
         // 拼接
         if(whereClause.length() == 0){
-            whereClause = new StringBuilder(isUpper ? KW_WHERE : KW_WHERE.toLowerCase());
+            String where = leftRightBlankWithCase(SqlKeyword.WHERE.getKeyword());
+            whereClause = new StringBuilder(where);
         } else{
-            whereClause.append(isUpper ? KW_AND : KW_AND.toLowerCase());
+            String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
+            whereClause.append(and);
         }
         // 添加左括号
-        whereClause.append(what).append(isUpper ? KW_IN : KW_IN.toLowerCase()).append(LEFT_BRAKET);
+        String in = leftRightBlankWithCase(SqlKeyword.IN.getKeyword());
+        whereClause.append(what).append(in).append(LEFT_BRAKET);
         for(Object part : ins){
             //数字不需要'' , 其他就转化为字符串并加上''
             String x = part instanceof Number ? part.toString() : QUOTE + part + QUOTE;
@@ -356,58 +284,30 @@ public class QueryHelper{
      * @param propertyName 参与排序的属性名
      * @param asc true表示升序，false表示降序
      */
+    @Override
     public QueryHelper addOrderProperty(String propertyName, boolean asc){
         if(getOrderByClause().length() == 0){
-            getOrderByClause().append(isUpper ? KW_ORDER_BY : KW_ORDER_BY.toLowerCase());
+            String orderBy = leftRightBlankWithCase(SqlKeyword.ORDER_BY.getKeyword());
+            getOrderByClause().append(orderBy);
         } else{
             getOrderByClause().append(COMMA);
         }
-
-        getOrderByClause().append(propertyName + (asc ? (isUpper ? KW_ASC : KW_ASC.toLowerCase())
-                : (isUpper ? KW_DESC : KW_DESC.toLowerCase())));
+        String ascStr = leftRightBlankWithCase(SqlKeyword.ASC.getKeyword());
+        String descStr = leftRightBlankWithCase(SqlKeyword.DESC.getKeyword());
+        getOrderByClause().append(propertyName).append(asc ? ascStr : descStr);
         return this;
     }
-
-    public QueryHelper addAscOrderProperty(String propertyName){
-        return addOrderProperty(propertyName , ASC);
-    }
-    public QueryHelper addDescOrderProperty(String propertyName){
-        return addOrderProperty(propertyName , DESC);
-    }
-    /**
-     * @param append 是否拼装这个排序
-     * @param propertyName 排序属性
-     * @param asc true表示升序，false表示降序
-     */
-    public QueryHelper addOrderProperty(boolean append, String propertyName, boolean asc){
-        if(append){
-            addOrderProperty(propertyName, asc);
-        }
-        return this;
-    }
-
-    public QueryHelper addAscOrderProperty(boolean append, String propertyName){
-        if(append){
-            addOrderProperty(propertyName, ASC);
-        }
-        return this;
-    }
-    public QueryHelper addDescOrderProperty(boolean append, String propertyName){
-        if(append){
-            addOrderProperty(propertyName, DESC);
-        }
-        return this;
-    }
-
     ///////////////////////////////////8.addGroupProperty方法,添加 GROUP BY 子句//////////////////////////////////
 
     /**
      * 添加GROUP BY子句
      * @param groupByName group by
      */
+    @Override
     public QueryHelper addGroupProperty(String groupByName){
         if(getGroupByClause().length() == 0){
-            getGroupByClause().append(isUpper ? KW_GROUP_BY : KW_GROUP_BY.toLowerCase()).append(groupByName);
+            String groupBy = leftRightBlankWithCase(SqlKeyword.GROUP_BY.getKeyword());
+            getGroupByClause().append(groupBy).append(groupByName);
         } else{
             getGroupByClause().append(COMMA).append(groupByName);
         }
@@ -417,25 +317,17 @@ public class QueryHelper{
     ///////////////////////////////////9.addHaving方法,添加 HAVING 子句//////////////////////////////////
 
     /**
-     * 是否添加此having子句
-     * @see QueryHelper#addHaving(String, Object...)
-     */
-    public QueryHelper addHaving(boolean append , String having , Object... params){
-        if(!append){
-            return this;
-        }
-        return addHaving(having , params);
-    }
-
-    /**
      * @param having having子句
      * @param params 参数
      */
+    @Override
     public QueryHelper addHaving(String having , Object... params){
         if(getHavingClause().length() == 0){
-            getHavingClause().append(isUpper ? KW_HAVING : KW_HAVING.toLowerCase()).append(having);
+            String hav = leftRightBlankWithCase(SqlKeyword.HAVING.getKeyword());
+            getHavingClause().append(hav).append(having);
         } else{
-            getHavingClause().append(isUpper ? KW_AND : KW_AND.toLowerCase()).append(having);
+            String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
+            getHavingClause().append(and).append(having);
         }
 
         addParams(params);
@@ -443,17 +335,12 @@ public class QueryHelper{
         return this;
     }
 
-    public QueryHelper addMapHaving(boolean append , String having, Object... keyValue){
-        if(!append){return this;}
-
-        return addMapHaving(having , keyValue);
-    }
-
     /**
      * 主要是为了支持某些框架中的具名参数
      * @param having having子句
      * @param keyValue 模式k1,v1,k2,v2...
      */
+    @Override
     public QueryHelper addMapHaving(String having, Object... keyValue){
         // 拼接having
         addHaving(having);
@@ -501,87 +388,32 @@ public class QueryHelper{
      * @param pageSize pageSize
      */
     public QueryHelper addLimit(int pageNumber , int pageSize){
-        int thisPage = (pageNumber - 1) * pageSize;
-        limitClause = (isUpper ? KW_LIMIT : KW_LIMIT.toLowerCase()) + thisPage + COMMA + pageSize;
+        return page(pageNumber, pageSize);
+    }
+
+    @Override
+    public QueryHelper page(int pageNumber, int pageSize) {
+        int offset = (pageNumber - 1) * pageSize;
+        String limit = leftRightBlankWithCase(SqlKeyword.LIMIT.getKeyword());
+        limitClause = limit + offset + COMMA + pageSize;
         return this;
     }
-
-
-    ///////////////////////////////////11.union相关方法,将两个SQL语句union起来//////////////////////////////////
-
-    /**
-     * union
-     */
-    public String unionWithoutPadding(QueryHelper other){
-        QueryHelper helper = Objects.requireNonNull(other);
-        String sql1 = this.getSqlWithoutPadding();
-        String sql2 = helper.getSqlWithoutPadding();
-        return union(isUpper ? KW_UNION : KW_UNION.toLowerCase() , sql1 , sql2);
-    }
-
-    public String union(QueryHelper other){
-        QueryHelper helper = Objects.requireNonNull(other);
-        String sql1 = this.getSql();
-        String sql2 = helper.getSql();
-        return union(isUpper ? KW_UNION : KW_UNION.toLowerCase() , sql1 , sql2);
-    }
-    public String unionAllWithoutPadding(QueryHelper other){
-        QueryHelper helper = Objects.requireNonNull(other);
-        String sql1 = this.getSqlWithoutPadding();
-        String sql2 = helper.getSqlWithoutPadding();
-        return union(isUpper ? KW_UNION_ALL : KW_UNION_ALL.toLowerCase() , sql1 , sql2);
-    }
-    public String unionAll(QueryHelper other){
-        QueryHelper helper = Objects.requireNonNull(other);
-        String sql1 = this.getSql();
-        String sql2 = helper.getSql();
-        return union(isUpper ? KW_UNION_ALL : KW_UNION_ALL.toLowerCase() , sql1 , sql2);
-    }
-
-    /**
-     *
-     * @param unionType UNION / UNION ALL
-     * @param oneSQL sql
-     * @param twoSQL sql
-     * @param otherSQLs sqls
-     * @return sql with union
-     */
-    public String union(String unionType , String oneSQL , String twoSQL , String... otherSQLs){
-//        String temp = (LEFT_BRAKET + oneSQL + RIGHT_BRAKET + unionType + LEFT_BRAKET + twoSQL + RIGHT_BRAKET );
-        String temp = (oneSQL + unionType + twoSQL );
-        if(null == otherSQLs || otherSQLs.length == 0){
-            return temp.trim();
-        }
-        //给每个sql语句添加()
-        List<String> withBraket = new ArrayList<>(otherSQLs.length);
-        withBraket.addAll(Arrays.asList(otherSQLs));
-
-        String join = join(unionType, unionType + BLANK, withBraket.toArray(new String[otherSQLs.length]));
-        return (temp + join).trim();
-    }
-
 
     ///////////////////////////////////12.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
 
     /**
      * 获取 select
      */
+    @Override
     public String getSelect(){
         return this.select;
-    }
-
-    /**
-     * From后面的所有语句 , 处理了 ? 参数的
-     * @see QueryHelper#getSqlExceptSelectWithoutPadding()
-     */
-    public String getSqlExceptSelect(){
-        return paddingParam(getSqlExceptSelectWithoutPadding());
     }
 
     /**
      * From后面的所有语句 , 没有处理 ?
      * @see QueryHelper#getSqlExceptSelect()
      */
+    @Override
     public String getSqlExceptSelectWithoutPadding(){
         StringBuilder builder = new StringBuilder(fromClause).append(whereClause);
         if(null != groupByClause){
@@ -597,17 +429,10 @@ public class QueryHelper{
     }
 
     /**
-     * 获取最终拼装的SQL , 并且处理了 ? 参数的
-     * @see QueryHelper#getSqlWithoutPadding
-     */
-    public String getSql(){
-        return paddingParam(getSqlWithoutPadding());
-    }
-
-    /**
      * 获取最终拼装的SQL , 没有处理 ?
      * @see QueryHelper#getSql()
      */
+    @Override
     public String getSqlWithoutPadding(){
         StringBuilder builder = new StringBuilder(select).append(fromClause).append(whereClause);
         if(null != groupByClause){
@@ -622,38 +447,15 @@ public class QueryHelper{
         return builder.append(limitClause).toString();
     }
 
-    private String paddingParam(String sql) {
-        List<Object> params = getListParameters();
-        // 填充参数
-        if(params != null){
-            for(int i = 0 , size = params.size(); i < size; i++){
-                // 1.巧妙利用替换一次之后，后面的?就自动往前移动一位，那么replaceFirst每次替换的就是下一个?
-                // 2.去掉某些特殊符号，防注入
-                String param = (params.get(i) instanceof Number) ? params.get(i) + "" :
-                        QUOTE + params.get(i).toString().replaceAll(SQL_INJECT_CHARS, "")
-                        + QUOTE;
-                sql = sql.replaceFirst("\\?", param);
-            }
-        }
-        return sql;
-    }
-
-
-    /**
-     * 获取生成的用于查询总记录数的SQL语句 , 并且处理了 ? 参数的
-     * @see QueryHelper#getCountQuerySqlWithoutPadding()
-     */
-    public String getCountQuerySql(){
-        return paddingParam(getCountQuerySqlWithoutPadding());
-    }
-
     /**
      * 获取生成的用于查询总记录数的SQL语句 , 没有处理 ?
      * @see QueryHelper#getCountQuerySql()
      * @see QueryHelper#getSqlWithoutPadding()
      */
+    @Override
     public String getCountQuerySqlWithoutPadding(){
-        StringBuilder builder = new StringBuilder(KW_SELECT).append(" COUNT(*) AS totalRow ").append(fromClause).append(whereClause);
+        String selectRightBlank = rightBlankWithCase(SqlKeyword.SELECT.getKeyword());
+        StringBuilder builder = new StringBuilder(selectRightBlank).append(" COUNT(*) AS totalRow ").append(fromClause).append(whereClause);
         if(null != groupByClause){
             builder.append(groupByClause);
         }
@@ -668,6 +470,7 @@ public class QueryHelper{
      * @see QueryHelper#and(String, Object...)
      * @see QueryHelper#addMapHaving(String, Object...)
      */
+    @Override
     public List<Object> getListParameters(){
         if(null == parameters){
             return new LinkedList<>();
@@ -680,6 +483,7 @@ public class QueryHelper{
      * @see QueryHelper#addCondition(String, Object...)
      * @see QueryHelper#and(String, Object...)
      */
+    @Override
     public Object[] getArrayParameters(){
         if(null == parameters){
             return new Object[0];
@@ -692,34 +496,13 @@ public class QueryHelper{
      * @see QueryHelper#addMapCondition(String, Object...)
      * @see QueryHelper#addMapHaving(String, Object...)
      */
+    @Override
     public Map<String, Object> getMapParameters() {
         if(null == mapParameters){
             return new LinkedHashMap<>();
         }
         return mapParameters;
     }
-
-    /**
-     * 工具方法 ： s, p ,[1,2,3] -> "p1s2s3"
-     * @param separator 分隔符
-     * @param prefix 前缀
-     * @param parts 多个
-     */
-    private static String join(String separator , String prefix , String... parts){
-        if(null == parts || 0 == parts.length){ throw new IllegalArgumentException("parts must more than one");}
-        StringBuilder buffer = new StringBuilder(prefix);
-        if(parts.length == 1){
-            //只有一个的时候没必要添加了 separator 又删除
-            return buffer.append(parts[0]).toString();
-        }
-        for(String part : parts){
-            buffer.append(part).append(separator);
-        }
-        int i = buffer.lastIndexOf(separator);
-        //去掉最后的separator
-        return buffer.substring(0 , i);
-    }
-
 
     public StringBuilder getOrderByClause() {
         if(null == orderByClause){
@@ -741,6 +524,41 @@ public class QueryHelper{
         }
         return havingClause;
     }
+
+    private String leftBlankWithCase(String word){
+        String leftBlank = leftBlank(word);
+        return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
+    }
+    private String rightBlankWithCase(String word){
+        String leftBlank = rightBlank(word);
+        return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
+    }
+    private String leftRightBlankWithCase(String word){
+        String leftBlank = leftRightBlank(word);
+        return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
+    }
+
+
+
+    /**
+     * 在左边添加空格
+     */
+    public static String leftBlank(String word){
+        return BLANK + word;
+    }
+    /**
+     * 在右边添加空格
+     */
+    public static String rightBlank(String word){
+        return word + BLANK;
+    }
+    /**
+     * 在左右量边添加空格
+     */
+    public static String leftRightBlank(String word){
+        return BLANK + word + BLANK;
+    }
+
 
     @Override
     public String toString() {
