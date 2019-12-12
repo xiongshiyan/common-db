@@ -13,7 +13,7 @@ import static top.jfunc.common.db.query.SqlUtil.leftRightBlank;
 
 /**
  * SQL的模式
- *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY .. LIMIT ..
+ *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public abstract class AbstractQueryBuilder implements QueryBuilder{
@@ -356,10 +356,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         }
     }
 
-    ///////////////////////////////////10.addHaving方法,添加 HAVING 子句//////////////////////////////////
-
-
-    ///////////////////////////////////12.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
+    ///////////////////////////////////10.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
 
     /**
      * 获取 select
@@ -368,7 +365,32 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
     public String getSelect(){
         return this.select;
     }
-
+    /**
+     * From后面的所有语句 , 没有处理 ?
+     * @see AbstractQueryBuilder#getSqlExceptSelect()
+     */
+    @Override
+    public String getSqlExceptSelectWithoutPadding(){
+        StringBuilder builder = new StringBuilder(fromClause).append(whereClause);
+        if(null != groupByClause){
+            builder.append(groupByClause);
+        }
+        if(null != havingClause){
+            builder.append(havingClause);
+        }
+        if(null != orderByClause){
+            builder.append(orderByClause);
+        }
+        return builder.toString();
+    }
+    /**
+     * 获取最终拼装的SQL , 没有处理 ?
+     * @see AbstractQueryBuilder#getSql()
+     */
+    @Override
+    public String getSqlWithoutPadding(){
+        return select + getSqlExceptSelectWithoutPadding();
+    }
     /**
      * 获取生成的用于查询总记录数的SQL语句 , 没有处理 ?
      * @see AbstractQueryBuilder#getCountQuerySql()

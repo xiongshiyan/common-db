@@ -7,8 +7,9 @@ import static top.jfunc.common.db.query.SqlUtil.*;
 
 
 /**
- * 用于mysql
- * @author xiongshiyan
+ * MYSQL的模式
+ *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY ... LIMIT offset , size
+ * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class QueryHelper extends AbstractQueryBuilder implements QueryBuilder {
     /**
@@ -16,18 +17,9 @@ public class QueryHelper extends AbstractQueryBuilder implements QueryBuilder {
      */
     private String       limitClause    = "";
 
-    /**
-     * 用于一张表的情况，生成From子句
-     * from topic t
-     */
     public QueryHelper(String select, String tableName, String alias){
         super(select, tableName, alias);
     }
-
-    /**
-     * 用于两张表联合的情况，生成From子句，类似from table1 a,table2 b 然后添加where条件
-     * 另外像left join 这种可以写在一个from字句中或者使用 leftJoin rightJoin innerJoin方法
-     */
     public QueryHelper(String select, String... froms){
         super(select, froms);
     }
@@ -49,30 +41,12 @@ public class QueryHelper extends AbstractQueryBuilder implements QueryBuilder {
         return this;
     }
     /**
-     * From后面的所有语句 , 没有处理 ?
+     * From后面的所有语句 , 没有处理 ? ，添加limit处理
      * @see AbstractQueryBuilder#getSqlExceptSelect()
      */
     @Override
     public String getSqlExceptSelectWithoutPadding(){
-        StringBuilder builder = new StringBuilder(fromClause).append(whereClause);
-        if(null != groupByClause){
-            builder.append(groupByClause);
-        }
-        if(null != havingClause){
-            builder.append(havingClause);
-        }
-        if(null != orderByClause){
-            builder.append(orderByClause);
-        }
-        return builder.append(limitClause).toString();
-    }
-    /**
-     * 获取最终拼装的SQL , 没有处理 ?
-     * @see AbstractQueryBuilder#getSql()
-     */
-    @Override
-    public String getSqlWithoutPadding(){
-        String sqlExceptSelectWithoutPadding = getSqlExceptSelectWithoutPadding();
-        return select + sqlExceptSelectWithoutPadding;
+        String sqlExceptSelectWithoutPadding = super.getSqlExceptSelectWithoutPadding();
+        return sqlExceptSelectWithoutPadding + limitClause;
     }
 }
