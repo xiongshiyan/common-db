@@ -13,8 +13,8 @@ public class SqlUtil {
     public static final String BLANK           = " ";
     public static final String COMMA           = leftRightBlank(",");
     public static final String QUOTE           = "'";
-    public static final String LEFT_BRAKET     = leftRightBlank("(");
-    public static final String RIGHT_BRAKET    = leftRightBlank(")");
+    public static final String LEFT_BRAKET     = "(";
+    public static final String RIGHT_BRAKET    = ")";
     /**
      *  替换掉SQL注入的那些字符 ['|;|--| and | or ]
      */
