@@ -1,7 +1,4 @@
-package top.jfunc.common.db;
-
-import top.jfunc.common.db.query.AbstractQueryBuilder;
-import top.jfunc.common.db.query.QueryBuilder;
+package top.jfunc.common.db.query;
 
 /**
  * 用于oracle
