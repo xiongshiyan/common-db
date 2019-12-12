@@ -2,6 +2,7 @@ package top.jfunc.common.db.query;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * SQL的模式
@@ -9,13 +10,8 @@ import java.util.List;
  * @author xiongshiyan
  */
 public interface QueryBuilder {
-
     boolean ASC = true;
     boolean DESC = false;
-    /**
-     *  替换掉SQL注入的那些字符 ['|;|--| and | or ]
-     */
-    String SQL_INJECT_CHARS = "([';]+|(--)+|(\\s+([aA][nN][dD])\\s+)+|(\\s+([oO][rR])\\s+)+)";
 
     /**
      * left join 子句
@@ -133,6 +129,34 @@ public interface QueryBuilder {
         return addIn(what , Arrays.asList(ins));
     }
 
+
+
+    /**
+     * @param condition 具体条件
+     * @param keyValue 参数
+     */
+    QueryBuilder addMapCondition(String condition, Object... keyValue);
+    default QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue){
+        if(append){
+            addMapCondition(condition, keyValue);
+        }
+        return this;
+    }
+
+    /**
+     * 增加map类型的having子句
+     */
+    QueryBuilder addMapHaving(String having, Object... keyValue);
+    default QueryBuilder addMapHaving(boolean append, String having, Object... keyValue){
+        if(append){
+            addMapHaving(having , keyValue);
+        }
+        return this;
+    }
+    Map<String, Object> getMapParameters();
+
+
+
     /**
      * 增加order by子句
      * @param propertyName like t1.time
@@ -197,7 +221,7 @@ public interface QueryBuilder {
     }
     /**
      * 增加分页条件
-     * @param pageNumber pageNumber
+     * @param pageNumber pageNumber based on 1
      * @param pageSize pageSize
      * @return this
      */
@@ -265,20 +289,17 @@ public interface QueryBuilder {
     default String getCountQuerySql(){
         return paddingParam(getCountQuerySqlWithoutPadding());
     }
+
+    /**
+     * 处理参数，处理了?和map类型的参数
+     * @param sql sql
+     * @return sql
+     */
     default String paddingParam(String sql) {
-        List<Object> params = getListParameters();
-        // 填充参数
-        if(params != null){
-            for(int i = 0 , size = params.size(); i < size; i++){
-                // 1.巧妙利用替换一次之后，后面的?就自动往前移动一位，那么replaceFirst每次替换的就是下一个?
-                // 2.去掉某些特殊符号，防注入
-                String param = (params.get(i) instanceof Number) ? params.get(i) + "" :
-                        "'" + params.get(i).toString().replaceAll(SQL_INJECT_CHARS, "")
-                                + "'";
-                sql = sql.replaceFirst("\\?", param);
-            }
-        }
-        return sql;
+        //处理问号
+        String handleQuote = SqlUtil.paddingParam(sql, getListParameters());
+        //处理map参数
+        return SqlUtil.paddingParam(handleQuote , getMapParameters());
     }
 
 
