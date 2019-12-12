@@ -8,7 +8,9 @@ import static top.jfunc.common.db.query.SqlUtil.COMMA;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY ... LIMIT offset , size
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class Sqlite3QueryBuilder extends AbstractQueryBuilder implements QueryBuilder {
+public class Sqlite3QueryBuilder extends AbstractQueryBuilder {
+    public Sqlite3QueryBuilder() {
+    }
     public Sqlite3QueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);
     }

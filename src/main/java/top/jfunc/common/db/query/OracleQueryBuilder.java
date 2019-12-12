@@ -4,7 +4,9 @@ package top.jfunc.common.db.query;
  * 用于oracle
  * @author xiongshiyan
  */
-public class OracleQueryBuilder extends AbstractQueryBuilder implements QueryBuilder {
+public class OracleQueryBuilder extends AbstractQueryBuilder {
+    public OracleQueryBuilder() {
+    }
     public OracleQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);
     }

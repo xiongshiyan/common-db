@@ -16,7 +16,7 @@ import static top.jfunc.common.db.query.SqlUtil.leftRightBlank;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public abstract class AbstractQueryBuilder implements QueryBuilder{
+public abstract class AbstractQueryBuilder implements QueryBuilder<AbstractQueryBuilder>{
     /**
      * 关键字连接是否是大写 , 但是由于select 和 from 子句是在构造器中 , 需自行指定
      */
@@ -54,10 +54,17 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
      */
     protected Map<String , Object> mapParameters;
 
+    /**
+     * 默认-1表示没有分页数据
+     */
     protected int pageNumber = -1;
     protected int pageSize = 10;
 
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
+
+    public AbstractQueryBuilder() {
+    }
+
     /**
      * 用于一张表的情况，生成From子句
      * from topic t
@@ -102,7 +109,9 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         isUpper = false;
         return this;
     }
+
     //////////////////////////////////////2.1.leftJoin方法,添加LEFT JOIN子句/////////////////////////////////////
+
     /**
      * 添加left join子句
      * @param joinClause LEFT JOIN 子句
@@ -120,7 +129,9 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         fromClause.append(leftJoin).append(joinClause);
         return this;
     }
+
     //////////////////////////////////////2.2.rightJoin方法,添加RIGHT JOIN子句/////////////////////////////////////
+
     /**
      * 添加right join子句
      * @param joinClause RIGHT JOIN 子句
@@ -137,7 +148,9 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         fromClause.append(rightJoin).append(joinClause);
         return this;
     }
+
     //////////////////////////////////////2.3.innerJoin方法,添加INNER JOIN子句/////////////////////////////////////
+
     /**
      * 添加inner join子句
      * @param joinClause INNER JOIN 子句
@@ -154,6 +167,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         fromClause.append(innerJoin).append(joinClause);
         return this;
     }
+
     //////////////////////////////////////2.4.on方法,join子句添加on条件/////////////////////////////////////
 
     /**
@@ -168,6 +182,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
     }
 
     ////////////////////////////3.addCondition/and/andIf方法,添加条件,多个用 AND 连接////////////////////////////
+
     /**
      * 拼接where子句 d.id between ? and ?   d.parent=?    d.parent is null
      * 跟 and(String, Object...) 的意义完全一致
@@ -185,6 +200,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
     }
 
     ////////////////////////////4.or/orIf方法,添加条件,多个用 OR 连接////////////////////////////
+
     /**
      * 添加 OR 子句
      */
@@ -197,7 +213,9 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         addParams(params);
         return this;
     }
+
     ////////////////////////////5.addMapCondition方法,添加 Map 条件,多个用 AND 连接////////////////////////////
+
     /**
      * 主要是为了支持某些框架中的具名参数
      * @param condition 具体条件
@@ -257,6 +275,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
     }
 
     ///////////////////////////////////7.addOrderProperty方法,添加 ORDER BY 子句//////////////////////////////////
+
     /**
      * 拼接order by子句
      * @param propertyName 参与排序的属性名
@@ -275,6 +294,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         getOrderByClause().append(propertyName).append(asc ? ascStr : descStr);
         return this;
     }
+
     ///////////////////////////////////8.addGroupProperty方法,添加 GROUP BY 子句//////////////////////////////////
 
     /**
@@ -364,6 +384,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         this.pageSize = pageSize;
         return this;
     }
+
     ///////////////////////////////////10.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
 
     /**
@@ -492,14 +513,23 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
         return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
     }
     protected String rightBlankWithCase(String word){
-        String leftBlank = rightBlank(word);
-        return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
+        String rightBlank = rightBlank(word);
+        return isUpper ? rightBlank.toUpperCase() : rightBlank.toLowerCase();
     }
     protected String leftRightBlankWithCase(String word){
-        String leftBlank = leftRightBlank(word);
-        return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
+        String leftRightBlank = leftRightBlank(word);
+        return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
     }
 
+    public AbstractQueryBuilder setSelect(CharSequence select) {
+        this.select = select.toString();
+        return this;
+    }
+
+    public AbstractQueryBuilder setFromClause(CharSequence fromClause) {
+        this.fromClause = new StringBuilder(fromClause);
+        return this;
+    }
 
     @Override
     public String toString() {

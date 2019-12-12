@@ -4,7 +4,9 @@ package top.jfunc.common.db.query;
  * sql server的模式
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class SqlServerQueryBuilder extends AbstractQueryBuilder implements QueryBuilder {
+public class SqlServerQueryBuilder extends AbstractQueryBuilder {
+    public SqlServerQueryBuilder() {
+    }
     public SqlServerQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);
     }
