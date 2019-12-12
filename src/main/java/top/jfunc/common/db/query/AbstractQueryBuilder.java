@@ -54,6 +54,9 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
      */
     protected Map<String , Object> mapParameters;
 
+    protected int pageNumber = -1;
+    protected int pageSize = 10;
+
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
     /**
      * 用于一张表的情况，生成From子句
@@ -355,7 +358,12 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
             }
         }
     }
-
+    @Override
+    public AbstractQueryBuilder page(int pageNumber, int pageSize) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        return this;
+    }
     ///////////////////////////////////10.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
 
     /**
@@ -389,8 +397,18 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
      */
     @Override
     public String getSqlWithoutPadding(){
-        return select + getSqlExceptSelectWithoutPadding();
+        if(-1 == pageNumber){
+            return select + getSqlExceptSelectWithoutPadding();
+        }
+
+        return sqlWithPage(select , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
     }
+
+    /**
+     * 专门处理分页参数，返回处理完的SQL
+     */
+    protected abstract String sqlWithPage(String select , String sqlExceptSelectWithoutPadding , int pageNumber , int pageSize);
+
     /**
      * 获取生成的用于查询总记录数的SQL语句 , 没有处理 ?
      * @see AbstractQueryBuilder#getCountQuerySql()
