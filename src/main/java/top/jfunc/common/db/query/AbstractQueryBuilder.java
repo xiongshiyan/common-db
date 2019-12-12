@@ -521,7 +521,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder<AbstractQuery
         return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
     }
 
-    public AbstractQueryBuilder setSelect(CharSequence select) {
+    public AbstractQueryBuilder setSelectClause(CharSequence select) {
         this.select = select.toString();
         return this;
     }

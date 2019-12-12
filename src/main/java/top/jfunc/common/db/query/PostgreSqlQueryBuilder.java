@@ -1,8 +1,5 @@
 package top.jfunc.common.db.query;
 
-import static top.jfunc.common.db.query.SqlUtil.COMMA;
-
-
 /**
  * postgreSQL的模式
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY ... LIMIT size offset o
@@ -21,7 +18,7 @@ public class PostgreSqlQueryBuilder extends AbstractQueryBuilder {
     protected String sqlWithPage(String select, String sqlExceptSelectWithoutPadding, int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         String limit = leftRightBlankWithCase(SqlKeyword.LIMIT.getKeyword());
-        String limitClause = limit + pageSize + COMMA + offset + " offset " + offset;
+        String limitClause = limit + pageSize + leftRightBlankWithCase("offset") + offset;
         return select + sqlExceptSelectWithoutPadding + limitClause;
     }
 }

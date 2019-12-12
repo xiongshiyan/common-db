@@ -3,6 +3,8 @@ package db;
 import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.common.db.QueryHelper;
+import top.jfunc.common.db.query.*;
+
 /**
  * @author xiongshiyan at 2018/5/10
  * QueryHelper的简单测试，也是介绍其用法
@@ -94,6 +96,77 @@ public class QueryHelperTest {
         helper.addLimit(1,10);
         Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id left join organization_class oc on oc.id=o.WebsiteId where tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>? group by tcoe.user_id having SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSqlWithoutPadding());
         Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id left join organization_class oc on oc.id=o.WebsiteId where tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>12 group by tcoe.user_id having SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSql());
+    }
+
+    @Test
+    public void testMysql(){
+        MysqlQueryBuilder builder = new MysqlQueryBuilder();
+        builder.setSelectClause("SELECT *");
+        builder.setFromClause("FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id");
+        builder.addCondition("t1.dep=3");
+        builder.addAscOrderProperty("t1.create_time");
+
+        builder.page(3,25);
+
+        System.out.println(builder.getSql());
+
+        Assert.assertEquals("SELECT *FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  LIMIT 50 , 25" , builder.getSql());
+    }
+    @Test
+    public void testOracle(){
+        OracleQueryBuilder builder = new OracleQueryBuilder();
+        builder.setSelectClause("SELECT *");
+        builder.setFromClause("FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id");
+        builder.addCondition("t1.dep=3");
+        builder.addAscOrderProperty("t1.create_time");
+
+        builder.page(3,25);
+
+        System.out.println(builder.getSql());
+
+        Assert.assertEquals("select * from ( select row_.*, rownum rownum_ from (  SELECT * FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  ) row_ where rownum <= 75) table_alias where table_alias.rownum_ > 50" , builder.getSql());
+    }
+    @Test
+    public void testPostgreSql(){
+        PostgreSqlQueryBuilder builder = new PostgreSqlQueryBuilder();
+        builder.setSelectClause("SELECT *");
+        builder.setFromClause("FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id");
+        builder.addCondition("t1.dep=3");
+        builder.addAscOrderProperty("t1.create_time");
+
+        builder.page(3,25);
+
+        System.out.println(builder.getSql());
+
+        Assert.assertEquals("SELECT *FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  LIMIT 25 OFFSET 50" , builder.getSql());
+    }
+    @Test
+    public void testSqlite3(){
+        Sqlite3QueryBuilder builder = new Sqlite3QueryBuilder();
+        builder.setSelectClause("SELECT *");
+        builder.setFromClause("FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id");
+        builder.addCondition("t1.dep=3");
+        builder.addAscOrderProperty("t1.create_time");
+
+        builder.page(3,25);
+
+        System.out.println(builder.getSql());
+
+        Assert.assertEquals("SELECT *FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  LIMIT 50 , 25" , builder.getSql());
+    }
+    @Test
+    public void testSqlserver(){
+        SqlServerQueryBuilder builder = new SqlServerQueryBuilder();
+        builder.setSelectClause("SELECT *");
+        builder.setFromClause("FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id");
+        builder.addCondition("t1.dep=3");
+        builder.addAscOrderProperty("t1.create_time");
+
+        builder.page(3,25);
+
+        System.out.println(builder.getSql());
+
+        Assert.assertEquals("SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM  ( SELECT TOP 75 tempcolumn=0, * FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC )vip)mvp where temprownumber>50" , builder.getSql());
     }
 }
 
