@@ -4,19 +4,19 @@ package top.jfunc.common.db.query;
  * 用于oracle
  * @author xiongshiyan
  */
-public class OracleQueryHelper extends AbstractQueryBuilder implements QueryBuilder {
+public class OracleQueryBuilder extends AbstractQueryBuilder implements QueryBuilder {
     private int pageNumber = -1;
     private int pageSize = 10;
 
-    public OracleQueryHelper(String select, String tableName, String alias){
+    public OracleQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);
     }
-    public OracleQueryHelper(String select, String... froms){
+    public OracleQueryBuilder(String select, String... froms){
         super(select, froms);
     }
 
     @Override
-    public OracleQueryHelper page(int pageNumber, int pageSize) {
+    public OracleQueryBuilder page(int pageNumber, int pageSize) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         return this;
