@@ -17,15 +17,7 @@ public class MysqlQueryBuilder extends AbstractQueryBuilder {
     public MysqlQueryBuilder(String select, String... froms){
         super(select, froms);
     }
-    /**
-     * 添加Limit子句
-     * @param pageNumber Base on 1
-     * @param pageSize pageSize
-     */
-    public MysqlQueryBuilder addLimit(int pageNumber , int pageSize){
-        super.page(pageNumber, pageSize);
-        return this;
-    }
+
     @Override
     protected String sqlWithPage(String select, String sqlExceptSelectWithoutPadding, int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;

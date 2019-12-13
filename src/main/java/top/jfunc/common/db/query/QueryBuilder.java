@@ -224,7 +224,7 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param pageSize pageSize
      * @return this
      */
-    THIS page(int pageNumber, int pageSize);
+    THIS paging(int pageNumber, int pageSize);
 
     /**
      * 获取select子句

@@ -15,4 +15,14 @@ public class QueryHelper extends MysqlQueryBuilder {
     public QueryHelper(String select, String... froms) {
         super(select, froms);
     }
+
+    /**
+     * 添加Limit子句
+     * @param pageNumber Base on 1
+     * @param pageSize pageSize
+     */
+    public MysqlQueryBuilder addLimit(int pageNumber , int pageSize){
+        paging(pageNumber, pageSize);
+        return this;
+    }
 }

@@ -106,7 +106,7 @@ public class QueryHelperTest {
         builder.addCondition("t1.dep=3");
         builder.addAscOrderProperty("t1.create_time");
 
-        builder.page(3,25);
+        builder.paging(3,25);
 
         System.out.println(builder.getSql());
 
@@ -120,7 +120,7 @@ public class QueryHelperTest {
         builder.addCondition("t1.dep=3");
         builder.addAscOrderProperty("t1.create_time");
 
-        builder.page(3,25);
+        builder.paging(3,25);
 
         System.out.println(builder.getSql());
 
@@ -134,7 +134,7 @@ public class QueryHelperTest {
         builder.addCondition("t1.dep=3");
         builder.addAscOrderProperty("t1.create_time");
 
-        builder.page(3,25);
+        builder.paging(3,25);
 
         System.out.println(builder.getSql());
 
@@ -148,7 +148,7 @@ public class QueryHelperTest {
         builder.addCondition("t1.dep=3");
         builder.addAscOrderProperty("t1.create_time");
 
-        builder.page(3,25);
+        builder.paging(3,25);
 
         System.out.println(builder.getSql());
 
@@ -162,7 +162,7 @@ public class QueryHelperTest {
         builder.addCondition("t1.dep=3");
         builder.addAscOrderProperty("t1.create_time");
 
-        builder.page(3,25);
+        builder.paging(3,25);
 
         System.out.println(builder.getSql());
 

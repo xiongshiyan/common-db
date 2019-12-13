@@ -55,7 +55,7 @@ public abstract class AbstractQueryBuilder implements QueryBuilder<AbstractQuery
     protected Map<String , Object> mapParameters;
 
     /**
-     * 默认-1表示没有分页数据
+     * 默认-1表示没有分页数据，based on 1
      */
     protected int pageNumber = -1;
     protected int pageSize = 10;
@@ -379,7 +379,14 @@ public abstract class AbstractQueryBuilder implements QueryBuilder<AbstractQuery
         }
     }
     @Override
-    public AbstractQueryBuilder page(int pageNumber, int pageSize) {
+    public AbstractQueryBuilder paging(int pageNumber, int pageSize) {
+        if(pageNumber <= 0){
+            throw new IllegalArgumentException("pageNumber must be greater than 0 , but " + pageNumber);
+        }
+        if(pageSize <= 0){
+            throw new IllegalArgumentException("pageSize must be greater than 0 , but " + pageSize);
+        }
+
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         return this;
@@ -521,12 +528,12 @@ public abstract class AbstractQueryBuilder implements QueryBuilder<AbstractQuery
         return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
     }
 
-    public AbstractQueryBuilder setSelectClause(CharSequence select) {
-        this.select = select.toString();
+    public AbstractQueryBuilder setSelectClause(String select) {
+        this.select = select;
         return this;
     }
 
-    public AbstractQueryBuilder setFromClause(CharSequence fromClause) {
+    public AbstractQueryBuilder setFromClause(String fromClause) {
         this.fromClause = new StringBuilder(fromClause);
         return this;
     }
