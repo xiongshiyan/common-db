@@ -1,7 +1,5 @@
 package top.jfunc.common.db.query;
 
-import top.jfunc.common.ChainCall;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +9,7 @@ import java.util.Map;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY .. LIMIT ..
  * @author xiongshiyan
  */
-public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>{
+public interface QueryBuilder{
     boolean ASC = true;
     boolean DESC = false;
 
@@ -21,39 +19,39 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param onClause like t1.id=t2.id
      * @return this
      */
-    THIS leftJoin(String joinClause, String onClause);
+    QueryBuilder leftJoin(String joinClause, String onClause);
     /**
      * left join 子句，配合{@link QueryBuilder#on(String)}子句使用
      * @param joinClause like tableName t
      * @return this
      */
-    THIS leftJoin(String joinClause);
+    QueryBuilder leftJoin(String joinClause);
     /**
      * right join 子句
      * @param joinClause like tableName t
      * @param onClause like t1.id=t2.id
      * @return this
      */
-    THIS rightJoin(String joinClause, String onClause);
+    QueryBuilder rightJoin(String joinClause, String onClause);
     /**
      * right join 子句，配合{@link QueryBuilder#on(String)}子句使用
      * @param joinClause like tableName t
      * @return this
      */
-    THIS rightJoin(String joinClause);
+    QueryBuilder rightJoin(String joinClause);
     /**
      * inner join 子句
      * @param joinClause like tableName t
      * @param onClause like t1.id=t2.id
      * @return this
      */
-    THIS innerJoin(String joinClause, String onClause);
+    QueryBuilder innerJoin(String joinClause, String onClause);
     /**
      * inner join 子句，配合{@link QueryBuilder#on(String)}子句使用
      * @param joinClause like tableName t
      * @return this
      */
-    THIS innerJoin(String joinClause);
+    QueryBuilder innerJoin(String joinClause);
     /**
      * on子句，调用之前必须先调用
      * {@link QueryBuilder#leftJoin(String)}
@@ -62,39 +60,39 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param onClause like t1.id=t2.id
      * @return this
      */
-    THIS on(String onClause);
+    QueryBuilder on(String onClause);
     /**
      * 增加条件add子句
      * @param condition like t1.id=?
      * @param params 参数
      * @return this
      */
-    THIS addCondition(String condition, Object... params);
+    QueryBuilder addCondition(String condition, Object... params);
     /**
      * 根据条件决定是否添加条件
      * @see QueryBuilder#and(boolean, String, Object...)
      */
-    default THIS addCondition(boolean append, String condition, Object... params){
+    default QueryBuilder addCondition(boolean append, String condition, Object... params){
         if(append){
             addCondition(condition, params);
         }
-        return myself();
+        return this;
     }
     /**
      * @see QueryBuilder#addCondition(String, Object...)
      */
-    default THIS and(String condition, Object... params){
+    default QueryBuilder and(String condition, Object... params){
         return addCondition(condition , params);
     }
     /**
      * 根据条件决定是否添加条件
      * @see QueryBuilder#addCondition(boolean, String, Object...)
      */
-    default THIS and(boolean append, String condition, Object... params){
+    default QueryBuilder and(boolean append, String condition, Object... params){
         if(append){
             and(condition, params);
         }
-        return myself();
+        return this;
     }
     /**
      * 增加条件or子句
@@ -102,16 +100,16 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param params 参数
      * @return this
      */
-    THIS or(String condition, Object... params);
+    QueryBuilder or(String condition, Object... params);
     /**
      * 根据条件决定是否添加条件
      * @see QueryBuilder#or(String, Object...)
      */
-    default THIS or(boolean append, String condition, Object... params){
+    default QueryBuilder or(boolean append, String condition, Object... params){
         if(append){
             or(condition, params);
         }
-        return myself();
+        return this;
     }
     /**
      * addIn("d.id" , 1,2,3) - > d.id IN (1,2,3)
@@ -120,12 +118,12 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param ins In条件
      * @return this
      */
-    <T> THIS addIn(String what, List<T> ins);
+    <T> QueryBuilder addIn(String what, List<T> ins);
 
     /**
      * @see QueryBuilder#addIn(String, List)
      */
-    default <T> THIS addIn(String what, T... ins){
+    default <T> QueryBuilder addIn(String what, T... ins){
         return addIn(what , Arrays.asList(ins));
     }
 
@@ -135,23 +133,23 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param condition 具体条件
      * @param keyValue 参数
      */
-    THIS addMapCondition(String condition, Object... keyValue);
-    default THIS addMapCondition(boolean append, String condition, Object... keyValue){
+    QueryBuilder addMapCondition(String condition, Object... keyValue);
+    default QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue){
         if(append){
             addMapCondition(condition, keyValue);
         }
-        return myself();
+        return this;
     }
 
     /**
      * 增加map类型的having子句
      */
-    THIS addMapHaving(String having, Object... keyValue);
-    default THIS addMapHaving(boolean append, String having, Object... keyValue){
+    QueryBuilder addMapHaving(String having, Object... keyValue);
+    default QueryBuilder addMapHaving(boolean append, String having, Object... keyValue){
         if(append){
             addMapHaving(having , keyValue);
         }
-        return myself();
+        return this;
     }
     Map<String, Object> getMapParameters();
 
@@ -163,12 +161,12 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param asc 升序还是降序
      * @return this
      */
-    THIS addOrderProperty(String propertyName, boolean asc);
+    QueryBuilder addOrderProperty(String propertyName, boolean asc);
 
-    default THIS addAscOrderProperty(String propertyName){
+    default QueryBuilder addAscOrderProperty(String propertyName){
         return addOrderProperty(propertyName , ASC);
     }
-    default THIS addDescOrderProperty(String propertyName){
+    default QueryBuilder addDescOrderProperty(String propertyName){
         return addOrderProperty(propertyName , DESC);
     }
 
@@ -177,44 +175,44 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param propertyName 排序属性
      * @param asc true表示升序，false表示降序
      */
-    default THIS addOrderProperty(boolean append, String propertyName, boolean asc){
+    default QueryBuilder addOrderProperty(boolean append, String propertyName, boolean asc){
         if(append){
             addOrderProperty(propertyName, asc);
         }
-        return myself();
+        return this;
     }
-    default THIS addAscOrderProperty(boolean append, String propertyName){
+    default QueryBuilder addAscOrderProperty(boolean append, String propertyName){
         if(append){
             addOrderProperty(propertyName, ASC);
         }
-        return myself();
+        return this;
     }
-    default THIS addDescOrderProperty(boolean append, String propertyName){
+    default QueryBuilder addDescOrderProperty(boolean append, String propertyName){
         if(append){
             addOrderProperty(propertyName, DESC);
         }
-        return myself();
+        return this;
     }
     /**
      * 增加group by子句
      * @param groupByName like t1.dept_id
      * @return this
      */
-    THIS addGroupProperty(String groupByName);
+    QueryBuilder addGroupProperty(String groupByName);
     /**
      * 增加having子句
      * @param having like t1.ff=?
      * @param params 参数
      * @return this
      */
-    THIS addHaving(String having, Object... params);
+    QueryBuilder addHaving(String having, Object... params);
     /**
      * 是否添加此having子句
      * @see QueryBuilder#addHaving(String, Object...)
      */
-    default THIS addHaving(boolean append, String having, Object... params){
+    default QueryBuilder addHaving(boolean append, String having, Object... params){
         if(!append){
-            return myself();
+            return this;
         }
         return addHaving(having , params);
     }
@@ -224,7 +222,7 @@ public interface QueryBuilder<THIS extends QueryBuilder> extends ChainCall<THIS>
      * @param pageSize pageSize
      * @return this
      */
-    THIS paging(int pageNumber, int pageSize);
+    QueryBuilder paging(int pageNumber, int pageSize);
 
     /**
      * 获取select子句
