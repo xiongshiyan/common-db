@@ -2,6 +2,7 @@ package top.jfunc.common.db.query;
 
 import top.jfunc.common.utils.CollectionUtil;
 import top.jfunc.common.utils.MapUtil;
+import top.jfunc.common.utils.StrUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,13 @@ public class SqlUtil {
         if(CollectionUtil.isEmpty(params)){
             return sql;
         }
-        // 填充参数
+
+        //参数个数至少是?个数
+        int countQuestion = StrUtil.count(sql, "?");
+        if(countQuestion > params.size()){
+            throw new IllegalArgumentException("sql need " + countQuestion + " params, but has only " + params.size() + "\r\n" + sql);
+        }
+
         // 填充参数
         for(int i = 0 , size = params.size(); i < size; i++){
             // 1.巧妙利用替换一次之后，后面的?就自动往前移动一位，那么replaceFirst每次替换的就是下一个?
@@ -84,6 +91,12 @@ public class SqlUtil {
     public static String paddingParam(String sql , Map<String , Object> params) {
         if(MapUtil.isEmpty(params)){
             return sql;
+        }
+
+        //参数个数至少是:个数
+        int countColon = StrUtil.count(sql, ":");
+        if(countColon > params.size()){
+            throw new IllegalArgumentException("sql need " + countColon + " params, but has only " + params.size() + "\r\n" + sql);
         }
 
         for (Map.Entry<String, Object> entry : params.entrySet()) {

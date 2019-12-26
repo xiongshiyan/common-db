@@ -33,4 +33,11 @@ public class SqlUtilTest {
         Assert.assertEquals("SELECT * FROM table t where t.t1='gg' and t.t2=5" , s);
 
     }
+    @Test(expected = IllegalArgumentException.class)
+    public void testPaddingParam3(){
+        Map<String , Object> map = new HashMap<>(2);
+        map.put("t1" , "gg");
+        String sql = "SELECT * FROM table t where t.t1=:t1 and t.t2=:t2";
+        SqlUtil.paddingParam(sql, map);
+    }
 }
