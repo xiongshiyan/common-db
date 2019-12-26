@@ -68,7 +68,7 @@ public class SqlUtil {
         //参数个数至少是?个数
         int countQuestion = StrUtil.count(sql, "?");
         if(countQuestion > params.size()){
-            throw new IllegalArgumentException("sql need " + countQuestion + " params, but has only " + params.size() + "\r\n" + sql);
+            throw new IllegalArgumentException("sql need " + countQuestion + " params, but has only " + params.size() + "\r\n" + sql + "\r\n" + params);
         }
 
         // 填充参数
@@ -96,7 +96,7 @@ public class SqlUtil {
         //参数个数至少是:个数
         int countColon = StrUtil.count(sql, ":");
         if(countColon > params.size()){
-            throw new IllegalArgumentException("sql need " + countColon + " params, but has only " + params.size() + "\r\n" + sql);
+            throw new IllegalArgumentException("sql need " + countColon + " params, but has only " + params.size() + "\r\n" + sql + "\r\n" + params);
         }
 
         for (Map.Entry<String, Object> entry : params.entrySet()) {

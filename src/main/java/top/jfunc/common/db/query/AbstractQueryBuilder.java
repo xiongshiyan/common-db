@@ -1,13 +1,11 @@
 package top.jfunc.common.db.query;
 
 import top.jfunc.common.ChainCall;
+import top.jfunc.common.utils.ArrayUtil;
 import top.jfunc.common.utils.CollectionUtil;
 import top.jfunc.common.utils.Joiner;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static top.jfunc.common.db.query.SqlUtil.*;
 import static top.jfunc.common.db.query.SqlUtil.leftRightBlank;
@@ -365,19 +363,13 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
 
     private void addParams(Object... params) {
-        // 参数
-        if(params != null){
-            if(null == parameters){
-                parameters = new LinkedList<>();
-            }
-            if(params.length == 0){return;}
-
-            for(Object p : params){
-                if(p != null){
-                    parameters.add(p);
-                }
-            }
+        if(ArrayUtil.isEmpty(params)){
+            return;
         }
+        if(null == parameters){
+            parameters = new LinkedList<>();
+        }
+        parameters.addAll(Arrays.asList(params));
     }
     @Override
     public THIS paging(int pageNumber, int pageSize) {

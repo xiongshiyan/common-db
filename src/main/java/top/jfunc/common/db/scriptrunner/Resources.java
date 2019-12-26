@@ -22,8 +22,9 @@ import java.util.Properties;
 
 /**
  * A class to simplify access to resources through the classloader.
+ * @author Clinton Begin
  */
-public class Resources extends Object{
+public class Resources{
 
     private static ClassLoader defaultClassLoader;
 
@@ -135,9 +136,7 @@ public class Resources extends Object{
      */
     public static Properties getResourceAsProperties(String resource) throws IOException{
         Properties props = new Properties();
-        InputStream in = null;
-        String propfile = resource;
-        in = getResourceAsStream(propfile);
+        InputStream in = getResourceAsStream(resource);
         props.load(in);
         in.close();
         return props;
@@ -156,9 +155,7 @@ public class Resources extends Object{
      */
     public static Properties getResourceAsProperties(ClassLoader loader, String resource) throws IOException{
         Properties props = new Properties();
-        InputStream in = null;
-        String propfile = resource;
-        in = getResourceAsStream(loader, propfile);
+        InputStream in = getResourceAsStream(loader, resource);
         props.load(in);
         in.close();
         return props;
@@ -259,9 +256,7 @@ public class Resources extends Object{
      */
     public static Properties getUrlAsProperties(String urlString) throws IOException{
         Properties props = new Properties();
-        InputStream in = null;
-        String propfile = urlString;
-        in = getUrlAsStream(propfile);
+        InputStream in = getUrlAsStream(urlString);
         props.load(in);
         in.close();
         return props;

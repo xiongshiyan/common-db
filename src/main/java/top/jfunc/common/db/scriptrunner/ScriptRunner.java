@@ -112,10 +112,7 @@ public class ScriptRunner{
                 }
             }
         }
-        catch(IOException e){
-            throw e;
-        }
-        catch(SQLException e){
+        catch(IOException|SQLException e){
             throw e;
         }
         catch(Exception e){
@@ -212,13 +209,7 @@ public class ScriptRunner{
                 conn.commit();
             }
         }
-        catch(SQLException e){
-            e.fillInStackTrace();
-            printlnError("Error executing: " + command);
-            printlnError(e);
-            throw e;
-        }
-        catch(IOException e){
+        catch(SQLException|IOException e){
             e.fillInStackTrace();
             printlnError("Error executing: " + command);
             printlnError(e);
