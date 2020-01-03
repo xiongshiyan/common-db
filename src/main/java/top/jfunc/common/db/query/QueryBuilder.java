@@ -108,17 +108,17 @@ public interface QueryBuilder{
     <T> QueryBuilder addIn(String what, T... ins);
 
     /**
-     * notIn("d.id" , 1,2,3) - > d.id NOT IN (1,2,3)
-     * notIn("d.phone" , "1","2","3") - > d.id NOT IN ('1','2','3')
+     * addNotIn("d.id" , 1,2,3) - > d.id NOT IN (1,2,3)
+     * addNotIn("d.phone" , "1","2","3") - > d.id NOT IN ('1','2','3')
      * @param what 添加 NOT IN 语句
      * @param ins NOT In条件
      * @return this
      */
-    <T> QueryBuilder notIn(String what , List<T> ins);
+    <T> QueryBuilder addNotIn(String what , List<T> ins);
     /**
-     * @see QueryBuilder#notIn(String, List)
+     * @see QueryBuilder#addNotIn(String, List)
      */
-    <T> QueryBuilder notIn(String what, T... ins);
+    <T> QueryBuilder addNotIn(String what, T... ins);
 
     /**
      * in("d.id" , "SELECT id FROM xx WHERE name='gg'") - > d.id IN (SELECT id FROM xx WHERE name='gg')
@@ -127,6 +127,13 @@ public interface QueryBuilder{
      * @return this
      */
     QueryBuilder in(String what , String inSubQuery);
+    /**
+     * notIn("d.id" , "SELECT id FROM xx WHERE name='gg'") - > d.id NOT IN (SELECT id FROM xx WHERE name='gg')
+     * @param what 添加 IN 语句
+     * @param inSubQuery In子查询
+     * @return this
+     */
+    QueryBuilder notIn(String what , String inSubQuery);
 
     /**
      * exists (...sql)

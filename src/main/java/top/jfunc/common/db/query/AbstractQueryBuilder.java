@@ -304,7 +304,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
     @Override
-    public <T> THIS notIn(String what, List<T> ins) {
+    public <T> THIS addNotIn(String what, List<T> ins) {
         if(CollectionUtil.isEmpty(ins)){
             return myself();
         }
@@ -315,8 +315,8 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
     @Override
-    public <T> QueryBuilder notIn(String what, T... ins) {
-        return notIn(what , Arrays.asList(ins));
+    public <T> QueryBuilder addNotIn(String what, T... ins) {
+        return addNotIn(what , Arrays.asList(ins));
     }
 
     /**
@@ -343,7 +343,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS in(String what, String inSubQuery) {
         addWhere();
-        whereClause.append(what).append(leftRightBlankWithCase(SqlKeyword.IN.getKeyword())).append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
+        whereClause.append(what).append(leftRightBlankWithCase(SqlKeyword.IN.getKeyword()))
+                .append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
+        return myself();
+    }
+
+    @Override
+    public QueryBuilder notIn(String what, String inSubQuery) {
+        addWhere();
+        whereClause.append(what).append(leftRightBlankWithCase(SqlKeyword.NOT_IN.getKeyword()))
+                .append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
         return myself();
     }
 
