@@ -76,6 +76,13 @@ public class QueryHelperTest {
         Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id IN (1 , 2 , 3 , 4) AND tcoe.phone IN ('15208384257')" , helper.getSql());
     }
     @Test
+    public void testIn(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.addCondition("a.name=?" , "xx");
+        helper.in("a.id" , "SELECT code FROM base_table");
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.name='xx' AND a.id IN (SELECT code FROM base_table)" , helper.getSql());
+    }
+    @Test
     public void testAddParams(){
         QueryHelper helper = new QueryHelper("SELECT *", "tcm_cmcc_order_extend tcoe" , "cmcc co" , "member_org mo");
         helper.addCondition("tcoe.cmcc_id=co.id");
@@ -167,6 +174,20 @@ public class QueryHelperTest {
         System.out.println(builder.getSql());
 
         Assert.assertEquals("SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM  ( SELECT TOP 75 tempcolumn=0, * FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC )vip)mvp where temprownumber>50" , builder.getSql());
+    }
+    @Test
+    public void testNotIn(){
+        QueryHelper helper = new QueryHelper("SELECT *", "tcm_cmcc_order_extend" , "tcoe");
+        helper.notIn("tcoe.id" , 1,2,3,4);
+        helper.notIn("tcoe.phone" , "15208384257");
+        Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id NOT IN (1 , 2 , 3 , 4) AND tcoe.phone NOT IN ('15208384257')" , helper.getSql());
+    }
+    @Test
+    public void testExist(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.exists("select 'x' from tariff t where t.id=a.id");
+        helper.notExists("select 'x' from tariff t where t.id=a.id");
+        Assert.assertEquals("SELECT * FROM activity a WHERE EXISTS (select 'x' from tariff t where t.id=a.id) AND NOT EXISTS (select 'x' from tariff t where t.id=a.id)" , helper.getSql());
     }
 }
 

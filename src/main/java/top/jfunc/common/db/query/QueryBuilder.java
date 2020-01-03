@@ -1,6 +1,5 @@
 package top.jfunc.common.db.query;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -70,30 +69,18 @@ public interface QueryBuilder{
     QueryBuilder addCondition(String condition, Object... params);
     /**
      * 根据条件决定是否添加条件
-     * @see QueryBuilder#and(boolean, String, Object...)
+     * @see QueryBuilder#addCondition(boolean, String, Object...)
      */
-    default QueryBuilder addCondition(boolean append, String condition, Object... params){
-        if(append){
-            addCondition(condition, params);
-        }
-        return this;
-    }
+    QueryBuilder addCondition(boolean append, String condition, Object... params);
     /**
      * @see QueryBuilder#addCondition(String, Object...)
      */
-    default QueryBuilder and(String condition, Object... params){
-        return addCondition(condition , params);
-    }
+    QueryBuilder and(String condition, Object... params);
     /**
      * 根据条件决定是否添加条件
      * @see QueryBuilder#addCondition(boolean, String, Object...)
      */
-    default QueryBuilder and(boolean append, String condition, Object... params){
-        if(append){
-            and(condition, params);
-        }
-        return this;
-    }
+    QueryBuilder and(boolean append, String condition, Object... params);
     /**
      * 增加条件or子句
      * @param condition like t1.id=?
@@ -105,12 +92,7 @@ public interface QueryBuilder{
      * 根据条件决定是否添加条件
      * @see QueryBuilder#or(String, Object...)
      */
-    default QueryBuilder or(boolean append, String condition, Object... params){
-        if(append){
-            or(condition, params);
-        }
-        return this;
-    }
+    QueryBuilder or(boolean append, String condition, Object... params);
     /**
      * addIn("d.id" , 1,2,3) - > d.id IN (1,2,3)
      * addIn("d.phone" , "1","2","3") - > d.id IN ('1','2','3')
@@ -123,37 +105,52 @@ public interface QueryBuilder{
     /**
      * @see QueryBuilder#addIn(String, List)
      */
-    default <T> QueryBuilder addIn(String what, T... ins){
-        return addIn(what , Arrays.asList(ins));
-    }
+    <T> QueryBuilder addIn(String what, T... ins);
 
+    /**
+     * notIn("d.id" , 1,2,3) - > d.id NOT IN (1,2,3)
+     * notIn("d.phone" , "1","2","3") - > d.id NOT IN ('1','2','3')
+     * @param what 添加 NOT IN 语句
+     * @param ins NOT In条件
+     * @return this
+     */
+    <T> QueryBuilder notIn(String what , List<T> ins);
+    /**
+     * @see QueryBuilder#notIn(String, List)
+     */
+    <T> QueryBuilder notIn(String what, T... ins);
 
+    /**
+     * in("d.id" , "SELECT id FROM xx WHERE name='gg'") - > d.id IN (SELECT id FROM xx WHERE name='gg')
+     * @param what 添加 IN 语句
+     * @param inSubQuery In子查询
+     * @return this
+     */
+    QueryBuilder in(String what , String inSubQuery);
+
+    /**
+     * exists (...sql)
+     */
+    QueryBuilder exists(String sql);
+
+    /**
+     * not exists (...sql)
+     */
+    QueryBuilder notExists(String sql);
 
     /**
      * @param condition 具体条件
      * @param keyValue 参数
      */
     QueryBuilder addMapCondition(String condition, Object... keyValue);
-    default QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue){
-        if(append){
-            addMapCondition(condition, keyValue);
-        }
-        return this;
-    }
+    QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue);
 
     /**
      * 增加map类型的having子句
      */
     QueryBuilder addMapHaving(String having, Object... keyValue);
-    default QueryBuilder addMapHaving(boolean append, String having, Object... keyValue){
-        if(append){
-            addMapHaving(having , keyValue);
-        }
-        return this;
-    }
+    QueryBuilder addMapHaving(boolean append, String having, Object... keyValue);
     Map<String, Object> getMapParameters();
-
-
 
     /**
      * 增加order by子句
@@ -162,43 +159,28 @@ public interface QueryBuilder{
      * @return this
      */
     QueryBuilder addOrderProperty(String propertyName, boolean asc);
-
-    default QueryBuilder addAscOrderProperty(String propertyName){
-        return addOrderProperty(propertyName , ASC);
-    }
-    default QueryBuilder addDescOrderProperty(String propertyName){
-        return addOrderProperty(propertyName , DESC);
-    }
+    QueryBuilder addAscOrderProperty(String propertyName);
+    QueryBuilder addAscOrderProperty(String... propertyNames);
+    QueryBuilder addDescOrderProperty(String propertyName);
+    QueryBuilder addDescOrderProperty(String... propertyNames);
 
     /**
      * @param append 是否拼装这个排序
      * @param propertyName 排序属性
      * @param asc true表示升序，false表示降序
      */
-    default QueryBuilder addOrderProperty(boolean append, String propertyName, boolean asc){
-        if(append){
-            addOrderProperty(propertyName, asc);
-        }
-        return this;
-    }
-    default QueryBuilder addAscOrderProperty(boolean append, String propertyName){
-        if(append){
-            addOrderProperty(propertyName, ASC);
-        }
-        return this;
-    }
-    default QueryBuilder addDescOrderProperty(boolean append, String propertyName){
-        if(append){
-            addOrderProperty(propertyName, DESC);
-        }
-        return this;
-    }
+    QueryBuilder addOrderProperty(boolean append, String propertyName, boolean asc);
+    QueryBuilder addAscOrderProperty(boolean append, String propertyName);
+    QueryBuilder addDescOrderProperty(boolean append, String propertyName);
+
     /**
      * 增加group by子句
      * @param groupByName like t1.dept_id
      * @return this
      */
     QueryBuilder addGroupProperty(String groupByName);
+    QueryBuilder addGroupProperty(String... groupByNames);
+
     /**
      * 增加having子句
      * @param having like t1.ff=?
@@ -210,12 +192,7 @@ public interface QueryBuilder{
      * 是否添加此having子句
      * @see QueryBuilder#addHaving(String, Object...)
      */
-    default QueryBuilder addHaving(boolean append, String having, Object... params){
-        if(!append){
-            return this;
-        }
-        return addHaving(having , params);
-    }
+    QueryBuilder addHaving(boolean append, String having, Object... params);
     /**
      * 增加分页条件
      * @param pageNumber pageNumber based on 1

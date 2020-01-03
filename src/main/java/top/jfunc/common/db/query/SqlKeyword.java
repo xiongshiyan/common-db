@@ -28,6 +28,19 @@ public enum SqlKeyword {
     AND,
     OR,
     IN,
+    NOT_IN{
+        @Override
+        public String getKeyword() {
+            return "NOT IN";
+        }
+    },
+    EXISTS,
+    NOT_EXISTS{
+        @Override
+        public String getKeyword() {
+            return "NOT EXISTS";
+        }
+    },
     GROUP_BY{
         @Override
         public String getKeyword() {

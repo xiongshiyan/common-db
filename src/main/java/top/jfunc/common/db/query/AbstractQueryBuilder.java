@@ -192,9 +192,30 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS addCondition(String condition, Object... params){
         // 拼接条件
-        addWhere(condition);
+        addWhereAndCondition(condition);
         // 添加参数
         addParams(params);
+        return myself();
+    }
+
+    @Override
+    public THIS addCondition(boolean append, String condition, Object... params) {
+        if(append){
+            addCondition(condition, params);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS and(String condition, Object... params) {
+        return addCondition(condition , params);
+    }
+
+    @Override
+    public THIS and(boolean append, String condition, Object... params) {
+        if(append){
+            addCondition(condition, params);
+        }
         return myself();
     }
 
@@ -213,6 +234,14 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return myself();
     }
 
+    @Override
+    public THIS or(boolean append, String condition, Object... params) {
+        if(append){
+            or(condition, params);
+        }
+        return myself();
+    }
+
     ////////////////////////////5.addMapCondition方法,添加 Map 条件,多个用 AND 连接////////////////////////////
 
     /**
@@ -223,7 +252,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS addMapCondition(String condition, Object... keyValue){
         // 拼接参数
-        addWhere(condition);
+        addWhereAndCondition(condition);
 
         //添加map类型参数k1,v1,k2,v2...
         addMapParams(keyValue);
@@ -231,15 +260,29 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return myself();
     }
 
-    private void addWhere(String condition) {
-        // 拼接
+    @Override
+    public THIS addMapCondition(boolean append, String condition, Object... keyValue) {
+        if(append){
+            addMapCondition(condition, keyValue);
+        }
+        return myself();
+    }
+
+    /**
+     * 增加 where ，如果存在就添加 and
+     */
+    private void addWhere() {
         if(whereClause.length() == 0){
             String where = leftRightBlankWithCase(SqlKeyword.WHERE.getKeyword());
-            whereClause = new StringBuilder(where).append(condition);
+            whereClause = new StringBuilder(where);
         } else{
             String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
-            whereClause.append(and).append(condition);
+            whereClause.append(and);
         }
+    }
+    private void addWhereAndCondition(String condition) {
+        addWhere();
+        whereClause.append(condition);
     }
 
     ///////////////////////////////////6.addIn方法,添加 IN 条件/////////////////////////////////////////////
@@ -249,16 +292,42 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         if(CollectionUtil.isEmpty(ins)){
             return myself();
         }
-        // 拼接
-        if(whereClause.length() == 0){
-            String where = leftRightBlankWithCase(SqlKeyword.WHERE.getKeyword());
-            whereClause = new StringBuilder(where);
-        } else{
-            String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
-            whereClause.append(and);
+
+        inNotInClause(what, SqlKeyword.IN , ins);
+
+        return myself();
+    }
+
+    @Override
+    public <T> THIS addIn(String what, T... ins) {
+        return addIn(what , Arrays.asList(ins));
+    }
+
+    @Override
+    public <T> THIS notIn(String what, List<T> ins) {
+        if(CollectionUtil.isEmpty(ins)){
+            return myself();
         }
+
+        inNotInClause(what, SqlKeyword.NOT_IN , ins);
+
+        return myself();
+    }
+
+    @Override
+    public <T> QueryBuilder notIn(String what, T... ins) {
+        return notIn(what , Arrays.asList(ins));
+    }
+
+    /**
+     * in (...)  或者 not in (...)
+     * @param sqlKeyword IN | NOT IN
+     */
+    private <T> void inNotInClause(String what, SqlKeyword sqlKeyword , List<T> ins) {
+        // 拼接where
+        addWhere();
         // 添加左括号
-        String in = leftRightBlankWithCase(SqlKeyword.IN.getKeyword());
+        String in = leftRightBlankWithCase(sqlKeyword.getKeyword());
         whereClause.append(what).append(in).append(LEFT_BRAKET);
         for(Object part : ins){
             //数字不需要'' , 其他就转化为字符串并加上''
@@ -269,7 +338,23 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         whereClause = new StringBuilder(whereClause.substring(0 , whereClause.lastIndexOf(COMMA)));
         //添加右括号
         whereClause.append(RIGHT_BRAKET);
+    }
 
+    @Override
+    public THIS in(String what, String inSubQuery) {
+        addWhere();
+        whereClause.append(what).append(leftRightBlankWithCase(SqlKeyword.IN.getKeyword())).append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
+        return myself();
+    }
+
+    @Override
+    public THIS exists(String sql) {
+        addWhereAndCondition(SqlKeyword.EXISTS.getKeyword() + BLANK + LEFT_BRAKET + sql + RIGHT_BRAKET);
+        return myself();
+    }
+    @Override
+    public THIS notExists(String sql) {
+        addWhereAndCondition(SqlKeyword.NOT_EXISTS.getKeyword() + BLANK + LEFT_BRAKET + sql + RIGHT_BRAKET);
         return myself();
     }
 
@@ -294,6 +379,56 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return myself();
     }
 
+    @Override
+    public THIS addAscOrderProperty(String propertyName) {
+        return addOrderProperty(propertyName , ASC);
+    }
+
+    @Override
+    public THIS addAscOrderProperty(String... propertyNames) {
+        for (String propertyName : propertyNames) {
+            addAscOrderProperty(propertyName);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS addDescOrderProperty(String propertyName) {
+        return addOrderProperty(propertyName , DESC);
+    }
+
+    @Override
+    public THIS addDescOrderProperty(String... propertyNames) {
+        for (String propertyName : propertyNames) {
+            addDescOrderProperty(propertyName);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS addOrderProperty(boolean append, String propertyName, boolean asc) {
+        if(append){
+            addOrderProperty(propertyName, asc);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS addAscOrderProperty(boolean append, String propertyName) {
+        if(append){
+            addOrderProperty(propertyName, ASC);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS addDescOrderProperty(boolean append, String propertyName) {
+        if(append){
+            addOrderProperty(propertyName , DESC);
+        }
+        return myself();
+    }
+
     ///////////////////////////////////8.addGroupProperty方法,添加 GROUP BY 子句//////////////////////////////////
 
     /**
@@ -307,6 +442,14 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
             getGroupByClause().append(groupBy).append(groupByName);
         } else{
             getGroupByClause().append(COMMA).append(groupByName);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS addGroupProperty(String... groupByNames) {
+        for (String groupByName : groupByNames) {
+            addGroupProperty(groupByName);
         }
         return myself();
     }
@@ -332,6 +475,14 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return myself();
     }
 
+    @Override
+    public THIS addHaving(boolean append, String having, Object... params) {
+        if(append){
+            addHaving(having , params);
+        }
+        return myself();
+    }
+
     /**
      * 主要是为了支持某些框架中的具名参数
      * @param having having子句
@@ -345,6 +496,14 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         //增加map参数
         addMapParams(keyValue);
 
+        return myself();
+    }
+
+    @Override
+    public THIS addMapHaving(boolean append, String having, Object... keyValue) {
+        if(append){
+            addMapHaving(having , keyValue);
+        }
         return myself();
     }
 
