@@ -178,8 +178,8 @@ public class QueryHelperTest {
     @Test
     public void testNotIn(){
         QueryHelper helper = new QueryHelper("SELECT *", "tcm_cmcc_order_extend" , "tcoe");
-        helper.notIn("tcoe.id" , 1,2,3,4);
-        helper.notIn("tcoe.phone" , "15208384257");
+        helper.addNotIn("tcoe.id" , 1,2,3,4);
+        helper.addNotIn("tcoe.phone" , "15208384257");
         Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id NOT IN (1 , 2 , 3 , 4) AND tcoe.phone NOT IN ('15208384257')" , helper.getSql());
     }
     @Test
