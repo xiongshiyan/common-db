@@ -274,7 +274,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     private void addWhere() {
         if(whereClause.length() == 0){
             String where = leftRightBlankWithCase(SqlKeyword.WHERE.getKeyword());
-            whereClause = new StringBuilder(where);
+            whereClause.append(where);
         } else{
             String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
             whereClause.append(and);
