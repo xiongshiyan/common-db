@@ -25,4 +25,15 @@ public class MysqlQueryBuilder extends AbstractQueryBuilder<MysqlQueryBuilder> {
         String limitClause = limit + offset + COMMA + pageSize;
         return select + sqlExceptSelectWithoutPadding + limitClause;
     }
+
+
+    /**
+     * 添加Limit子句
+     * @param pageNumber Base on 1
+     * @param pageSize pageSize
+     */
+    public MysqlQueryBuilder addLimit(int pageNumber , int pageSize){
+        paging(pageNumber, pageSize);
+        return myself();
+    }
 }

@@ -1,7 +1,6 @@
 package top.jfunc.common.db;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import top.jfunc.common.utils.IoUtil;
 
 import java.sql.*;
 
@@ -10,7 +9,6 @@ import java.sql.*;
  * @author 熊诗言
  */
 public class DBHelper {
-    private static final Logger logger = LoggerFactory.getLogger(DBHelper.class);
     private Connection conn = null;
 
     public DBHelper(String url , String username ,String password , String driverClass){
@@ -37,10 +35,6 @@ public class DBHelper {
         return pst;
     }
     public void close() {
-        try {
-            this.conn.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage() , e);
-        }
+        IoUtil.close(this.conn);
     }
 }
