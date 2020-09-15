@@ -21,7 +21,7 @@ public class QueryHelperTest {
         helper.addCondition("tsu.name like ?" , "sdas and ' d And Or");
         helper.addGroupProperty("tcoe.user_id");
         helper.addOrderProperty("tcoe.user_id" ,true);
-        helper.addLimit(1,10);
+        helper.paging(1,10);
         Assert.assertEquals("SELECT   tsu.name AS moshaoName,tsu.user_name AS moshaoUserName,COUNT(*) AS useCard ,tsu.remain_blank_card AS sellingCard,(COUNT(*)+tsu.remain_blank_card) AS cardCount , p.name AS managerName,p.user_name AS managerUserName,pp.name AS agentName,pp.user_name AS agentUserName FROM tcm_cmcc_order_extend tcoe LEFT JOIN tcm_spreader_user tsu ON tsu.id=tcoe.user_id LEFT JOIN tcm_spreader_user p ON p.id=tsu.parent_user_id LEFT JOIN tcm_spreader_user pp ON pp.id=p.parent_user_id WHERE tsu.name like 'sdas dOr' GROUP BY tcoe.user_id ORDER BY tcoe.user_id ASC  LIMIT 0 , 10" , helper.getSql());
     }
 
@@ -100,7 +100,7 @@ public class QueryHelperTest {
         helper.keyWordLower().addGroupProperty("tcoe.user_id");
         helper.addHaving("SUM(co.order_id) > 10");
         helper.keyWordUpper().addDescOrderProperty("SUM(co.order_id)");
-        helper.addLimit(1,10);
+        helper.paging(1,10);
         Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id left join organization_class oc on oc.id=o.WebsiteId where tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>? group by tcoe.user_id having SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSqlWithoutPadding());
         Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id left join organization_class oc on oc.id=o.WebsiteId where tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>12 group by tcoe.user_id having SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSql());
     }
@@ -145,7 +145,7 @@ public class QueryHelperTest {
 
         System.out.println(builder.getSql());
 
-        Assert.assertEquals("SELECT *FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  LIMIT 25 OFFSET 50" , builder.getSql());
+        Assert.assertEquals("SELECT *FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  LIMIT 25 offset 50" , builder.getSql());
     }
     @Test
     public void testSqlite3(){

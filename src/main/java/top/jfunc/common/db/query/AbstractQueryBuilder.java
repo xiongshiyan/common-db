@@ -54,6 +54,11 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     protected Map<String , Object> mapParameters;
 
     /**
+     * 分页语句拼装
+     */
+    private SqlBuilder sqlBuilder;
+
+    /**
      * 默认-1表示没有分页数据，based on 1
      */
     protected int pageNumber = -1;
@@ -61,24 +66,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
 
-    public THIS setSelectClause(String selectClause) {
-        this.selectClause = selectClause;
-        return myself();
-    }
-
-    public THIS setFromClause(String fromClause) {
-        this.fromClause = new StringBuilder(fromClause);
-        return myself();
-    }
-
-    public AbstractQueryBuilder() {
+    public AbstractQueryBuilder(SqlBuilder sqlBuilder) {
+        this.sqlBuilder = sqlBuilder;
     }
 
     /**
      * 用于一张表的情况，生成From子句
      * from topic t
      */
-    public AbstractQueryBuilder(String select, String tableName, String alias){
+    public AbstractQueryBuilder(SqlBuilder sqlBuilder, String select, String tableName, String alias){
+        this(sqlBuilder);
         this.selectClause = addSelectIfNecessary(select);
         fromClause.append(leftRightBlankWithCase(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
@@ -87,7 +84,8 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * 用于两张表联合的情况，生成From子句，类似from table1 a,table2 b 然后添加where条件
      * 另外像left join 这种可以写在一个from字句中或者使用 leftJoin rightJoin innerJoin方法
      */
-    public AbstractQueryBuilder(String select, String... froms){
+    public AbstractQueryBuilder(SqlBuilder sqlBuilder, String select, String... froms){
+        this(sqlBuilder);
         this.selectClause = addSelectIfNecessary(select);
         String prefix = leftRightBlankWithCase(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
@@ -109,6 +107,17 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
             return selectRightBlank + select;
         }
     }
+
+    public THIS setSelectClause(String selectClause) {
+        this.selectClause = selectClause;
+        return myself();
+    }
+
+    public THIS setFromClause(String fromClause) {
+        this.fromClause = new StringBuilder(fromClause);
+        return myself();
+    }
+
 
     public THIS keyWordUpper() {
         isUpper = true;
@@ -600,13 +609,8 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
             return selectClause + getSqlExceptSelectWithoutPadding();
         }
 
-        return sqlWithPage(selectClause , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
+        return sqlBuilder.sqlWithPage(selectClause , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
     }
-
-    /**
-     * 专门处理分页参数，返回处理完的SQL
-     */
-    protected abstract String sqlWithPage(String select , String sqlExceptSelectWithoutPadding , int pageNumber , int pageSize);
 
     /**
      * 获取生成的用于查询总记录数的SQL语句 , 没有处理 ?
