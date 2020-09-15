@@ -189,5 +189,11 @@ public class QueryHelperTest {
         helper.notExists("select 'x' from tariff t where t.id=a.id");
         Assert.assertEquals("SELECT * FROM activity a WHERE EXISTS (select 'x' from tariff t where t.id=a.id) AND NOT EXISTS (select 'x' from tariff t where t.id=a.id)" , helper.getSql());
     }
+    @Test
+    public void testCluster(){
+        //QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a").addCondition("a.id=1").addCondition("a.name='信息'");
+        MysqlQueryBuilder helper = new MysqlQueryBuilder("SELECT *", "activity" , "a").addCondition("a.id=1").addCondition("a.name='信息'");
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.id=1 AND a.name='信息'" , helper.getSql());
+    }
 }
 

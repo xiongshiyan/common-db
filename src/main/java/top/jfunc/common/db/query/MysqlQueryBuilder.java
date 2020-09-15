@@ -8,7 +8,7 @@ import static top.jfunc.common.db.query.SqlUtil.COMMA;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY ... LIMIT offset , size
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class MysqlQueryBuilder extends AbstractQueryBuilder {
+public class MysqlQueryBuilder extends AbstractQueryBuilder<MysqlQueryBuilder> {
     public MysqlQueryBuilder() {
     }
     public MysqlQueryBuilder(String select, String tableName, String alias){

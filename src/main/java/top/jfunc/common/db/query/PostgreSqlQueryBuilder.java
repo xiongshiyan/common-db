@@ -5,7 +5,7 @@ package top.jfunc.common.db.query;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY ... LIMIT size offset o
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class PostgreSqlQueryBuilder extends AbstractQueryBuilder {
+public class PostgreSqlQueryBuilder extends AbstractQueryBuilder<PostgreSqlQueryBuilder> {
     public PostgreSqlQueryBuilder() {
     }
     public PostgreSqlQueryBuilder(String select, String tableName, String alias){

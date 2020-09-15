@@ -4,7 +4,7 @@ package top.jfunc.common.db.query;
  * sql server的模式
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class SqlServerQueryBuilder extends AbstractQueryBuilder {
+public class SqlServerQueryBuilder extends AbstractQueryBuilder<SqlServerQueryBuilder> {
     public SqlServerQueryBuilder() {
     }
     public SqlServerQueryBuilder(String select, String tableName, String alias){
@@ -23,11 +23,9 @@ public class SqlServerQueryBuilder extends AbstractQueryBuilder {
         if (begin < 0) {
             begin = 0;
         }
-        StringBuilder ret = new StringBuilder();
-        ret.append("SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM ");
-        ret.append(" ( SELECT TOP ").append(end).append(" tempcolumn=0,");
-        ret.append(sqlSelect.replaceFirst("(?i)select", "")).append(" ").append(sqlExceptSelect);
-        ret.append(")vip)mvp where temprownumber>").append(begin);
-        return ret.toString();
+        return "SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM " +
+                " ( SELECT TOP " + end + " tempcolumn=0," +
+                sqlSelect.replaceFirst("(?i)select", "") + " " + sqlExceptSelect +
+                ")vip)mvp where temprownumber>" + begin;
     }
 }

@@ -21,7 +21,7 @@ public class QueryHelper extends MysqlQueryBuilder {
      * @param pageNumber Base on 1
      * @param pageSize pageSize
      */
-    public MysqlQueryBuilder addLimit(int pageNumber , int pageSize){
+    public QueryHelper addLimit(int pageNumber , int pageSize){
         paging(pageNumber, pageSize);
         return this;
     }
