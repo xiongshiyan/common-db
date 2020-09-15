@@ -10,6 +10,7 @@ import static top.jfunc.common.db.query.SqlUtil.COMMA;
  */
 public class Sqlite3QueryBuilder extends AbstractQueryBuilder<Sqlite3QueryBuilder> {
     public Sqlite3QueryBuilder() {
+        super();
     }
     public Sqlite3QueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);

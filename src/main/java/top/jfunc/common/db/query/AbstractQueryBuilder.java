@@ -23,7 +23,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     /**
      * select子句
      */
-    protected String       select;
+    protected String       selectClause;
     /**
      * from子句
      */
@@ -61,6 +61,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
 
+    public THIS setSelectClause(String selectClause) {
+        this.selectClause = selectClause;
+        return myself();
+    }
+
+    public THIS setFromClause(String fromClause) {
+        this.fromClause = new StringBuilder(fromClause);
+        return myself();
+    }
+
     public AbstractQueryBuilder() {
     }
 
@@ -69,7 +79,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * from topic t
      */
     public AbstractQueryBuilder(String select, String tableName, String alias){
-        this.select = addSelectIfNecessary(select);
+        this.selectClause = addSelectIfNecessary(select);
         fromClause.append(leftRightBlankWithCase(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
 
@@ -78,7 +88,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * 另外像left join 这种可以写在一个from字句中或者使用 leftJoin rightJoin innerJoin方法
      */
     public AbstractQueryBuilder(String select, String... froms){
-        this.select = addSelectIfNecessary(select);
+        this.selectClause = addSelectIfNecessary(select);
         String prefix = leftRightBlankWithCase(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
         //去除空格取前5个[from ]
@@ -560,7 +570,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSelect(){
-        return this.select;
+        return this.selectClause;
     }
     /**
      * From后面的所有语句 , 没有处理 ?
@@ -587,10 +597,10 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public String getSqlWithoutPadding(){
         if(-1 == pageNumber){
-            return select + getSqlExceptSelectWithoutPadding();
+            return selectClause + getSqlExceptSelectWithoutPadding();
         }
 
-        return sqlWithPage(select , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
+        return sqlWithPage(selectClause , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
     }
 
     /**
@@ -687,16 +697,6 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     protected String leftRightBlankWithCase(String word){
         String leftRightBlank = leftRightBlank(word);
         return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
-    }
-
-    public THIS setSelectClause(String select) {
-        this.select = select;
-        return myself();
-    }
-
-    public THIS setFromClause(String fromClause) {
-        this.fromClause = new StringBuilder(fromClause);
-        return myself();
     }
 
     @Override

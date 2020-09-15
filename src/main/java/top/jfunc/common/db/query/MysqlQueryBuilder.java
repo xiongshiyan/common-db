@@ -10,6 +10,7 @@ import static top.jfunc.common.db.query.SqlUtil.COMMA;
  */
 public class MysqlQueryBuilder extends AbstractQueryBuilder<MysqlQueryBuilder> {
     public MysqlQueryBuilder() {
+        super();
     }
     public MysqlQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);

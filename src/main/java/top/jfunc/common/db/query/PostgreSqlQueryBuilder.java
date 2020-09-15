@@ -7,6 +7,7 @@ package top.jfunc.common.db.query;
  */
 public class PostgreSqlQueryBuilder extends AbstractQueryBuilder<PostgreSqlQueryBuilder> {
     public PostgreSqlQueryBuilder() {
+        super();
     }
     public PostgreSqlQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);

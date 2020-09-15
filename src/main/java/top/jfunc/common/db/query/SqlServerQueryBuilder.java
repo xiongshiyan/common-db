@@ -6,6 +6,7 @@ package top.jfunc.common.db.query;
  */
 public class SqlServerQueryBuilder extends AbstractQueryBuilder<SqlServerQueryBuilder> {
     public SqlServerQueryBuilder() {
+        super();
     }
     public SqlServerQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);

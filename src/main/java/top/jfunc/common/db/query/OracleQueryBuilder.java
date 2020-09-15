@@ -6,6 +6,7 @@ package top.jfunc.common.db.query;
  */
 public class OracleQueryBuilder extends AbstractQueryBuilder<OracleQueryBuilder> {
     public OracleQueryBuilder() {
+        super();
     }
     public OracleQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);
