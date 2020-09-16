@@ -23,6 +23,10 @@ public class QueryHelperTest {
         helper.addOrderProperty("tcoe.user_id" ,true);
         helper.paging(1,10);
         Assert.assertEquals("SELECT   tsu.name AS moshaoName,tsu.user_name AS moshaoUserName,COUNT(*) AS useCard ,tsu.remain_blank_card AS sellingCard,(COUNT(*)+tsu.remain_blank_card) AS cardCount , p.name AS managerName,p.user_name AS managerUserName,pp.name AS agentName,pp.user_name AS agentUserName FROM tcm_cmcc_order_extend tcoe LEFT JOIN tcm_spreader_user tsu ON tsu.id=tcoe.user_id LEFT JOIN tcm_spreader_user p ON p.id=tsu.parent_user_id LEFT JOIN tcm_spreader_user pp ON pp.id=p.parent_user_id WHERE tsu.name like 'sdas dOr' GROUP BY tcoe.user_id ORDER BY tcoe.user_id ASC  LIMIT 0 , 10" , helper.getSql());
+
+
+        QueryHelper helper2 = new QueryHelper("SELECT *", "activity" , "a").addCondition("a.id=1").addCondition("a.name='信息'");
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.id=1 AND a.name='信息'" , helper2.getSql());
     }
 
     /**
@@ -118,6 +122,10 @@ public class QueryHelperTest {
         System.out.println(builder.getSql());
 
         Assert.assertEquals("SELECT *FROM table1 t1 LEFT JOIN table2 t2 ON t1.id=t2.id WHERE t1.dep=3 ORDER BY t1.create_time ASC  LIMIT 50 , 25" , builder.getSql());
+
+        //测试连缀
+        MysqlQueryBuilder helper = new MysqlQueryBuilder("SELECT *", "activity" , "a").addCondition("a.id=1").addCondition("a.name='信息'");
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.id=1 AND a.name='信息'" , helper.getSql());
     }
     @Test
     public void testOracle(){
@@ -188,12 +196,6 @@ public class QueryHelperTest {
         helper.exists("select 'x' from tariff t where t.id=a.id");
         helper.notExists("select 'x' from tariff t where t.id=a.id");
         Assert.assertEquals("SELECT * FROM activity a WHERE EXISTS (select 'x' from tariff t where t.id=a.id) AND NOT EXISTS (select 'x' from tariff t where t.id=a.id)" , helper.getSql());
-    }
-    @Test
-    public void testCluster(){
-        //QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a").addCondition("a.id=1").addCondition("a.name='信息'");
-        MysqlQueryBuilder helper = new MysqlQueryBuilder("SELECT *", "activity" , "a").addCondition("a.id=1").addCondition("a.name='信息'");
-        Assert.assertEquals("SELECT * FROM activity a WHERE a.id=1 AND a.name='信息'" , helper.getSql());
     }
 }
 
