@@ -1,10 +1,7 @@
 package db;
 
 import org.junit.Test;
-import top.jfunc.common.db.condition.Conditions;
-import top.jfunc.common.db.condition.Junction;
-import top.jfunc.common.db.condition.Restrictions;
-import top.jfunc.common.db.condition.SimpleExpression;
+import top.jfunc.common.db.condition.*;
 
 /**
  * @author xiongshiyan at 2020/10/29 , contact me with email yanshixiong@126.com or phone 15208384257
@@ -68,6 +65,20 @@ public class ConditionJdbcTest {
 
         System.out.println(conjunction.toJdbcSql());
         System.out.println(disjunction.toJdbcSql());
+    }
+    @Test
+    public void testLogic() {
+        Conditions c1 = new Conditions();
+        c1.add(Restrictions.and(Restrictions.eq("age",18),Restrictions.eq("name","李四")));
+
+        Conditions c2 = new Conditions();
+        c2.add(Restrictions.or(Restrictions.eq("count",18),Restrictions.eq("count",29)));
+
+        LogicalExpression and = new LogicalExpression(c1, c2, "AND");
+        LogicalExpression or = new LogicalExpression(c1, c2, "OR");
+
+        System.out.println(and.toJdbcSql());
+        System.out.println(or.toJdbcSql());
     }
     @Test
     public void testOneConjunction() {

@@ -1,5 +1,7 @@
 package top.jfunc.common.db.condition;
 
+import top.jfunc.common.db.query.SqlKeyword;
+
 import java.util.Collection;
 
 /**
@@ -84,6 +86,13 @@ public class Restrictions {
 
     public static Disjunction or(Criterion... predicates) {
         return disjunction( predicates );
+    }
+
+    public static Criterion logicAnd(Criterion lhs, Criterion rhs) {
+        return new LogicalExpression(lhs, rhs, SqlKeyword.AND.getKeyword());
+    }
+    public static Criterion logicOr(Criterion lhs, Criterion rhs) {
+        return new LogicalExpression(lhs, rhs, SqlKeyword.OR.getKeyword());
     }
 
     /**
