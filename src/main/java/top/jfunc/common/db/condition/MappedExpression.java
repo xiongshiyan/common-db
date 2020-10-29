@@ -13,7 +13,7 @@ public class MappedExpression extends AbstractCriterion implements Criterion {
     private final String op;
     private final String key;
 
-    public MappedExpression(String propertyName, Op op, String key, Object value) {
+    protected MappedExpression(String propertyName, Op op, String key, Object value) {
         this.propertyName = propertyName;
         this.op = op.getSeperator();
         this.key = key;

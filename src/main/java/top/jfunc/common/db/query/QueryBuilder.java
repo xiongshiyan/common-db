@@ -161,6 +161,12 @@ public interface QueryBuilder{
     QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue);
 
     /**
+     * @see top.jfunc.common.db.condition.Conditions
+     * @see top.jfunc.common.db.condition.MappedExpression
+     */
+    QueryBuilder addMapCondition(Criterion criterion);
+
+    /**
      * 增加map类型的having子句
      */
     QueryBuilder addMapHaving(String having, Object... keyValue);

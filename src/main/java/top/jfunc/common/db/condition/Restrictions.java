@@ -75,6 +75,11 @@ public class Restrictions {
         return new NotNullExpression( propertyName );
     }
 
+
+    public static Criterion mapped(String propertyName, Op op, String key, Object value){
+        return new MappedExpression(propertyName, op, key, value);
+    }
+
     public static Conjunction and(Criterion... predicates) {
         return conjunction( predicates );
     }

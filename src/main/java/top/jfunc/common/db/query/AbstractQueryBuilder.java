@@ -296,6 +296,18 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return myself();
     }
 
+    @Override
+    public QueryBuilder addMapCondition(Criterion criterion) {
+        addWhereAndCondition(criterion.toJdbcSql());
+
+        if(null == mapParameters){
+            mapParameters = new LinkedHashMap<>();
+        }
+        mapParameters.putAll(criterion.getParameterMap());
+
+        return myself();
+    }
+
     /**
      * 增加 where ，如果存在就添加 and
      */

@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.common.db.QueryHelper;
 import top.jfunc.common.db.condition.Conditions;
+import top.jfunc.common.db.condition.MappedExpression;
+import top.jfunc.common.db.condition.Op;
 import top.jfunc.common.db.condition.Restrictions;
 import top.jfunc.common.db.query.*;
 
@@ -211,6 +213,22 @@ public class QueryHelperTest {
         helper.addCondition(conditions);
         Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=1 AND a.yy IN (1,2,3) AND (a.count= 2 AND a.age BETWEEN 20 AND 30)", helper.getSql());
         Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=? AND a.yy IN (?,?,?) AND (a.count= ? AND a.age BETWEEN ? AND ?)", helper.getSqlWithoutPadding());
+    }
+    @Test
+    public void testCriterionMapParameter(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        Conditions conditions = new Conditions();
+
+        conditions.add(new MappedExpression("a.name", Op.EQ, "name","熊诗言"));
+        conditions.add(new MappedExpression("a.age", Op.GE, "age",12));
+
+        helper.addMapCondition(conditions);
+
+        Assert.assertEquals("SELECT * FROM activity a WHERE (a.name = '熊诗言' AND a.age >= 12)", helper.getSql());
+        Assert.assertEquals("SELECT * FROM activity a WHERE (a.name = :name AND a.age >= :age)", helper.getSqlWithoutPadding());
+
+        System.out.println(helper.getMapParameters());
+
     }
 }
 
