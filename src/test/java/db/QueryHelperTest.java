@@ -209,8 +209,8 @@ public class QueryHelperTest {
         conditions.add(Restrictions.eq("a.count", 2));
         conditions.add(Restrictions.between("a.age",20,30));
         helper.addCondition(conditions);
-        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=1 AND a.yy IN (1,2,3) AND (a.count= 2 AND a.age between 20 and 30)", helper.getSql());
-        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=? AND a.yy IN (?,?,?) AND (a.count= ? AND a.age between ? and ?)", helper.getSqlWithoutPadding());
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=1 AND a.yy IN (1,2,3) AND (a.count= 2 AND a.age BETWEEN 20 AND 30)", helper.getSql());
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=? AND a.yy IN (?,?,?) AND (a.count= ? AND a.age BETWEEN ? AND ?)", helper.getSqlWithoutPadding());
     }
 }
 
