@@ -1,5 +1,7 @@
 package top.jfunc.common.db.query;
 
+import top.jfunc.common.db.condition.Criterion;
+
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +69,12 @@ public interface QueryBuilder{
      * @return this
      */
     QueryBuilder addCondition(String condition, Object... params);
+
+    /**
+     * 增加对{@link Criterion}的支持
+     * @param criterion 条件
+     */
+    QueryBuilder addCondition(Criterion criterion);
     /**
      * 根据条件决定是否添加条件
      * @see QueryBuilder#addCondition(boolean, String, Object...)

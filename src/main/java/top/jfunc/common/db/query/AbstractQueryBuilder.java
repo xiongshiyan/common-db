@@ -1,9 +1,11 @@
 package top.jfunc.common.db.query;
 
 import top.jfunc.common.ChainCall;
+import top.jfunc.common.db.condition.Criterion;
 import top.jfunc.common.utils.ArrayUtil;
 import top.jfunc.common.utils.CollectionUtil;
 import top.jfunc.common.utils.Joiner;
+import top.jfunc.common.utils.StrUtil;
 
 import java.util.*;
 
@@ -226,6 +228,12 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
     @Override
+    public QueryBuilder addCondition(Criterion criterion) {
+        addCondition(criterion.toJdbcSql(), criterion.getParameters().toArray());
+        return myself();
+    }
+
+    @Override
     public THIS and(String condition, Object... params) {
         return addCondition(condition , params);
     }
@@ -348,15 +356,24 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         // 添加左括号
         String in = leftRightBlankWithCase(sqlKeyword.getKeyword());
         whereClause.append(what).append(in).append(LEFT_BRAKET);
-        for(Object part : ins){
+
+        ///
+        /*for(Object part : ins){
             //数字不需要'' , 其他就转化为字符串并加上''
             String x = part instanceof Number ? part.toString() : QUOTE + part + QUOTE;
             whereClause.append(x).append(COMMA);
         }
         // 去掉最后的 ,
-        whereClause = new StringBuilder(whereClause.substring(0 , whereClause.lastIndexOf(COMMA)));
+        whereClause = new StringBuilder(whereClause.substring(0 , whereClause.lastIndexOf(COMMA)));*/
+
+        List<String> parts = new ArrayList<>(ins.size());
+        ins.forEach(ele->parts.add(StrUtil.QUESTION_MARK));
+        String questions = Joiner.on(StrUtil.COMMA).join(parts);
+        whereClause.append(questions);
         //添加右括号
         whereClause.append(RIGHT_BRAKET);
+
+        addParams(ins.toArray());
     }
 
     @Override

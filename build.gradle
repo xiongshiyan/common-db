@@ -39,7 +39,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'top.jfunc.common', name: 'utils', version: '1.8.3.2'
+    compile group: 'top.jfunc.common', name: 'utils', version: '1.8.3.5'
     compileOnly group: 'org.hibernate', name: 'hibernate-core', version: '5.0.12.Final'
     compileOnly group: 'org.springframework.data', name: 'spring-data-commons', version: '1.13.7.RELEASE'
 

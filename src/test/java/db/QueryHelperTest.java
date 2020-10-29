@@ -3,6 +3,8 @@ package db;
 import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.common.db.QueryHelper;
+import top.jfunc.common.db.condition.Conditions;
+import top.jfunc.common.db.condition.Restrictions;
 import top.jfunc.common.db.query.*;
 
 /**
@@ -77,7 +79,7 @@ public class QueryHelperTest {
         QueryHelper helper = new QueryHelper("SELECT *", "tcm_cmcc_order_extend" , "tcoe");
         helper.addIn("tcoe.id" , 1,2,3,4);
         helper.addIn("tcoe.phone" , "15208384257");
-        Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id IN (1 , 2 , 3 , 4) AND tcoe.phone IN ('15208384257')" , helper.getSql());
+        Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id IN (1,2,3,4) AND tcoe.phone IN ('15208384257')" , helper.getSql());
     }
     @Test
     public void testIn(){
@@ -188,7 +190,7 @@ public class QueryHelperTest {
         QueryHelper helper = new QueryHelper("SELECT *", "tcm_cmcc_order_extend" , "tcoe");
         helper.addNotIn("tcoe.id" , 1,2,3,4);
         helper.addNotIn("tcoe.phone" , "15208384257");
-        Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id NOT IN (1 , 2 , 3 , 4) AND tcoe.phone NOT IN ('15208384257')" , helper.getSql());
+        Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.id NOT IN (1,2,3,4) AND tcoe.phone NOT IN ('15208384257')" , helper.getSql());
     }
     @Test
     public void testExist(){
@@ -196,6 +198,19 @@ public class QueryHelperTest {
         helper.exists("select 'x' from tariff t where t.id=a.id");
         helper.notExists("select 'x' from tariff t where t.id=a.id");
         Assert.assertEquals("SELECT * FROM activity a WHERE EXISTS (select 'x' from tariff t where t.id=a.id) AND NOT EXISTS (select 'x' from tariff t where t.id=a.id)" , helper.getSql());
+    }
+    @Test
+    public void testCriterion(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.addCondition("a.xx=?",1);
+        helper.addIn("a.yy",1,2,3);
+
+        Conditions conditions = new Conditions();
+        conditions.add(Restrictions.eq("a.count", 2));
+        conditions.add(Restrictions.between("a.age",20,30));
+        helper.addCondition(conditions);
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=1 AND a.yy IN (1,2,3) AND (a.count= 2 AND a.age between 20 and 30)", helper.getSql());
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=? AND a.yy IN (?,?,?) AND (a.count= ? AND a.age between ? and ?)", helper.getSqlWithoutPadding());
     }
 }
 
