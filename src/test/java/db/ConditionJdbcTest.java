@@ -1,5 +1,6 @@
 package db;
 
+import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.common.db.condition.*;
 
@@ -10,7 +11,7 @@ public class ConditionJdbcTest {
     @Test
     public void testSimpleExpression1() {
         SimpleExpression eq = Restrictions.eq("count", 2);
-        System.out.println(eq.toJdbcSql());
+        Assert.assertEquals("count = ?", eq.toJdbcSql());
         System.out.println(eq.getParameters());
     }
 
@@ -24,7 +25,7 @@ public class ConditionJdbcTest {
         conditions.add(Restrictions.ge("num",8));
         conditions.add(Restrictions.le("num", 130));
         conditions.add(Restrictions.ne("address", "这个地址"));
-        System.out.println(conditions.toJdbcSql());
+        Assert.assertEquals("(count = ? AND name = ? AND age >= ? AND age < ? AND num >= ? AND num <= ? AND address <> ?)", conditions.toJdbcSql());
         System.out.println(conditions.getParameters());
 
         Conditions conditions1 = new Conditions();
@@ -32,7 +33,7 @@ public class ConditionJdbcTest {
                 .ge("age", 18)
                 .lt("age", 30)
                 .ne("address", "这个地址");
-        System.out.println(conditions1.toJdbcSql());
+        Assert.assertEquals("(name = ? AND age >= ? AND age < ? AND address <> ?)", conditions1.toJdbcSql());
         System.out.println(conditions1.getParameters());
     }
     @Test
@@ -40,7 +41,7 @@ public class ConditionJdbcTest {
         Conditions conditions = new Conditions();
         conditions.add(Restrictions.eq("count", 2));
         conditions.add(Restrictions.between("age",20,30));
-        System.out.println(conditions.toJdbcSql());
+        Assert.assertEquals("(count = ? AND age BETWEEN ? AND ?)", conditions.toJdbcSql());
         System.out.println(conditions.getParameters());
     }
 
@@ -49,7 +50,7 @@ public class ConditionJdbcTest {
         Conditions conditions = new Conditions();
         conditions.add(Restrictions.and(Restrictions.eq("age",18),Restrictions.eq("name","李四")));
         conditions.add(Restrictions.or(Restrictions.eq("count",18),Restrictions.eq("count",29)));
-        System.out.println(conditions.toJdbcSql());
+        Assert.assertEquals("((age = ? AND name = ?) AND (count = ? OR count = ?))", conditions.toJdbcSql());
         System.out.println(conditions.getParameters());
     }
     @Test
@@ -63,8 +64,8 @@ public class ConditionJdbcTest {
         Junction conjunction = Restrictions.conjunction(c1, c2);
         Junction disjunction = Restrictions.disjunction(c1, c2);
 
-        System.out.println(conjunction.toJdbcSql());
-        System.out.println(disjunction.toJdbcSql());
+        Assert.assertEquals("((age = ? AND name = ?) AND (count = ? OR count = ?))", conjunction.toJdbcSql());
+        Assert.assertEquals("((age = ? AND name = ?) OR (count = ? OR count = ?))", disjunction.toJdbcSql());
     }
     @Test
     public void testLogic() {
@@ -77,14 +78,14 @@ public class ConditionJdbcTest {
         LogicalExpression and = new LogicalExpression(c1, c2, "AND");
         LogicalExpression or = new LogicalExpression(c1, c2, "OR");
 
-        System.out.println(and.toJdbcSql());
-        System.out.println(or.toJdbcSql());
+        Assert.assertEquals("((age = ? AND name = ?) AND (count = ? OR count = ?))", and.toJdbcSql());
+        Assert.assertEquals("((age = ? AND name = ?) OR (count = ? OR count = ?))", or.toJdbcSql());
     }
     @Test
     public void testOneConjunction() {
         Conditions conditions = new Conditions();
         conditions.add(Restrictions.or(Restrictions.eq("count", 18), Restrictions.eq("count", 29)));
-        System.out.println(conditions.toJdbcSql());
+        Assert.assertEquals("(count = ? OR count = ?)", conditions.toJdbcSql());
         System.out.println(conditions.getParameters());
     }
 
@@ -93,17 +94,17 @@ public class ConditionJdbcTest {
         Conditions conditions = new Conditions();
 
         conditions.add(Restrictions.conjunction(Restrictions.eq("xxx",1), Restrictions.eq("yyy", 2)));
-        System.out.println(conditions.toJdbcSql());
+        Assert.assertEquals("(xxx = ? AND yyy = ?)", conditions.toJdbcSql());
         System.out.println(conditions.getParameters());
     }
     @Test
     public void testMappedParameter() {
         Conditions conditions = new Conditions();
 
-        conditions.add(new MappedExpression("t.name", Op.EQ, "name","熊诗言"));
-        conditions.add(new MappedExpression("t.age", Op.GE, "age",12));
+        conditions.add(Restrictions.mapped("t.name", Op.EQ, "name","熊诗言"));
+        conditions.add(Restrictions.mapped("t.age", Op.GE, "age",12));
 
-        System.out.println(conditions.toJdbcSql());
+        Assert.assertEquals("(t.name = :name AND t.age >= :age)", conditions.toJdbcSql());
         System.out.println(conditions.getParameterMap());
         //System.out.println(conditions.toMybatisSql());
     }

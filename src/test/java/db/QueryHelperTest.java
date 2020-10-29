@@ -211,16 +211,16 @@ public class QueryHelperTest {
         conditions.add(Restrictions.eq("a.count", 2));
         conditions.add(Restrictions.between("a.age",20,30));
         helper.addCondition(conditions);
-        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=1 AND a.yy IN (1,2,3) AND (a.count= 2 AND a.age BETWEEN 20 AND 30)", helper.getSql());
-        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=? AND a.yy IN (?,?,?) AND (a.count= ? AND a.age BETWEEN ? AND ?)", helper.getSqlWithoutPadding());
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=1 AND a.yy IN (1,2,3) AND (a.count = 2 AND a.age BETWEEN 20 AND 30)", helper.getSql());
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.xx=? AND a.yy IN (?,?,?) AND (a.count = ? AND a.age BETWEEN ? AND ?)", helper.getSqlWithoutPadding());
     }
     @Test
     public void testCriterionMapParameter(){
         QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
         Conditions conditions = new Conditions();
 
-        conditions.add(new MappedExpression("a.name", Op.EQ, "name","熊诗言"));
-        conditions.add(new MappedExpression("a.age", Op.GE, "age",12));
+        conditions.add(Restrictions.mapped("a.name", Op.EQ, "name","熊诗言"));
+        conditions.add(Restrictions.mapped("a.age", Op.GE, "age",12));
 
         helper.addMapCondition(conditions);
 

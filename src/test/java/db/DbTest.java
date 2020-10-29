@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class DbTest {
     @Test
-    @Ignore
     public void testQueryRemove() throws Exception{
 
         List<Record> lists = new ArrayList<>(200);
@@ -38,7 +37,6 @@ public class DbTest {
         }
     }
     @Test
-    @Ignore
     public void testQueryRemove2() throws Exception{
 
         List<Record> lists = new ArrayList<>(200);
