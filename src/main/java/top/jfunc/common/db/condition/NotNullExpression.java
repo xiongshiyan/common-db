@@ -23,6 +23,6 @@ public class NotNullExpression  extends AbstractCriterion  implements Criterion 
 
     @Override
     public String toString() {
-        return propertyName + " is not null";
+        return propertyName + " IS NOT NULL";
     }
 }

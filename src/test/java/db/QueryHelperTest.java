@@ -38,9 +38,9 @@ public class QueryHelperTest {
     public void testPositionParam(){
         QueryHelper helper = new QueryHelper("SELECT tsu.name AS moshaoName,tsu.user_name AS moshaoUserName,COUNT(*) AS useCard ,tsu.remain_blank_card AS sellingCard,(COUNT(*)+tsu.remain_blank_card) AS cardCount , p.name AS managerName,p.user_name AS managerUserName,pp.name AS agentName,pp.user_name AS agentUserName",
                 "tcm_cmcc_order_extend tcoe LEFT JOIN tcm_spreader_user tsu ON tsu.id=tcoe.user_id LEFT JOIN tcm_spreader_user p ON p.id=tsu.parent_user_id LEFT JOIN tcm_spreader_user pp ON pp.id=p.parent_user_id");
-        helper.keyWordLower().addCondition("tcoe.tcm_state=?" , 0);
+        helper.addCondition("tcoe.tcm_state=?" , 0);
         helper.addCondition(3>2 ,"tcoe.user_id=?" , 12445);
-        Assert.assertEquals("SELECT tsu.name AS moshaoName,tsu.user_name AS moshaoUserName,COUNT(*) AS useCard ,tsu.remain_blank_card AS sellingCard,(COUNT(*)+tsu.remain_blank_card) AS cardCount , p.name AS managerName,p.user_name AS managerUserName,pp.name AS agentName,pp.user_name AS agentUserName FROM tcm_cmcc_order_extend tcoe LEFT JOIN tcm_spreader_user tsu ON tsu.id=tcoe.user_id LEFT JOIN tcm_spreader_user p ON p.id=tsu.parent_user_id LEFT JOIN tcm_spreader_user pp ON pp.id=p.parent_user_id where tcoe.tcm_state=0 and tcoe.user_id=12445" , helper.getSql());
+        Assert.assertEquals("SELECT tsu.name AS moshaoName,tsu.user_name AS moshaoUserName,COUNT(*) AS useCard ,tsu.remain_blank_card AS sellingCard,(COUNT(*)+tsu.remain_blank_card) AS cardCount , p.name AS managerName,p.user_name AS managerUserName,pp.name AS agentName,pp.user_name AS agentUserName FROM tcm_cmcc_order_extend tcoe LEFT JOIN tcm_spreader_user tsu ON tsu.id=tcoe.user_id LEFT JOIN tcm_spreader_user p ON p.id=tsu.parent_user_id LEFT JOIN tcm_spreader_user pp ON pp.id=p.parent_user_id WHERE tcoe.tcm_state=0 AND tcoe.user_id=12445" , helper.getSql());
         Assert.assertEquals(0 , helper.getListParameters().get(0));
         Assert.assertEquals(12445 , helper.getListParameters().get(1));
     }
@@ -99,16 +99,16 @@ public class QueryHelperTest {
     public void testAll(){
         QueryHelper helper = new QueryHelper("SELECT tcoe.user_id", "tcm_cmcc_order_extend tcoe" , "cmcc co" , "member_org mo");
         helper.leftJoin("organization o" , "o.id=mo.org_id");
-        helper.keyWordLower().leftJoin("organization_class oc").on("oc.id=o.WebsiteId");
+        helper.leftJoin("organization_class oc").on("oc.id=o.WebsiteId");
         helper.addCondition("tcoe.cmcc_id=co.id");
-        helper.keyWordUpper().addCondition("tcoe.user_id=mo.id");
+        helper.addCondition("tcoe.user_id=mo.id");
         helper.addCondition(1>0 , "tcoe.id>?" , 12);
-        helper.keyWordLower().addGroupProperty("tcoe.user_id");
+        helper.addGroupProperty("tcoe.user_id");
         helper.addHaving("SUM(co.order_id) > 10");
-        helper.keyWordUpper().addDescOrderProperty("SUM(co.order_id)");
+        helper.addDescOrderProperty("SUM(co.order_id)");
         helper.paging(1,10);
-        Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id left join organization_class oc on oc.id=o.WebsiteId where tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>? group by tcoe.user_id having SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSqlWithoutPadding());
-        Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id left join organization_class oc on oc.id=o.WebsiteId where tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>12 group by tcoe.user_id having SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSql());
+        Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id LEFT JOIN organization_class oc ON oc.id=o.WebsiteId WHERE tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>? GROUP BY tcoe.user_id HAVING SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSqlWithoutPadding());
+        Assert.assertEquals("SELECT tcoe.user_id FROM tcm_cmcc_order_extend tcoe , cmcc co , member_org mo LEFT JOIN organization o ON o.id=mo.org_id LEFT JOIN organization_class oc ON oc.id=o.WebsiteId WHERE tcoe.cmcc_id=co.id AND tcoe.user_id=mo.id AND tcoe.id>12 GROUP BY tcoe.user_id HAVING SUM(co.order_id) > 10 ORDER BY SUM(co.order_id) DESC  LIMIT 0 , 10" , helper.getSql());
     }
 
     @Test

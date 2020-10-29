@@ -19,16 +19,16 @@ public class BetweenExpression extends AbstractCriterion implements Criterion {
 
     @Override
     public String toMybatisSql() {
-        return this.propertyName + " between #{" + getParameterName(propertyName + "_lo") + "} " + " and #{" + getParameterName(propertyName + "_hi") + "} ";
+        return this.propertyName + " BETWEEN #{" + getParameterName(propertyName + "_lo") + "} " + " AND #{" + getParameterName(propertyName + "_hi") + "} ";
     }
 
     @Override
     public String toJdbcSql() {
-        return this.propertyName + " between ? and ?";
+        return this.propertyName + " BETWEEN ? AND ?";
     }
 
     @Override
     public String toString() {
-        return propertyName + " between " + lo + " and " + hi;
+        return propertyName + " BETWEEN " + lo + " AND " + hi;
     }
 }

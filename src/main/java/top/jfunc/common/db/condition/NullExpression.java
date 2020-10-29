@@ -23,6 +23,6 @@ public class NullExpression extends AbstractCriterion implements Criterion {
 
     @Override
     public String toString() {
-        return propertyName + " is null";
+        return propertyName + " IS NULL";
     }
 }

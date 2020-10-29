@@ -30,7 +30,7 @@ public class InExpression  extends AbstractCriterion  implements Criterion {
     public String toMybatisSql() {
         StringBuilder fragment = new StringBuilder();
         fragment.append( this.propertyName);
-        fragment.append( " in (" );
+        fragment.append( " IN (" );
         for (int i = 0; i < this.values.length; i++) {
             if(0 < i){
                 fragment.append(" , ");
@@ -51,11 +51,11 @@ public class InExpression  extends AbstractCriterion  implements Criterion {
             questions[i] = StrUtil.QUESTION_MARK;
         }
         String s = Joiner.on(StrUtil.COMMA).join(questions);
-        return this.propertyName + " in (" + s +  ")";
+        return this.propertyName + " IN (" + s +  ")";
     }
 
     @Override
     public String toString() {
-        return propertyName + " in (" + Arrays.asList(values) + ')';
+        return propertyName + " IN (" + Arrays.asList(values) + ')';
     }
 }

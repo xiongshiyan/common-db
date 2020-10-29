@@ -21,7 +21,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     /**
      * 关键字连接是否是大写 , 但是由于select 和 from 子句是在构造器中 , 需自行指定
      */
-    protected boolean isUpper = true;
+    //protected boolean isUpper = true;
     /**
      * select子句
      */
@@ -121,14 +121,15 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
 
-    public THIS keyWordUpper() {
+    ///
+    /*public THIS keyWordUpper() {
         isUpper = true;
         return myself();
     }
     public THIS keyWordLower() {
         isUpper = false;
         return myself();
-    }
+    }*/
 
     //////////////////////////////////////2.1.leftJoin方法,添加LEFT JOIN子句/////////////////////////////////////
 
@@ -708,16 +709,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
     protected String leftBlankWithCase(String word){
-        String leftBlank = leftBlank(word);
-        return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
+        return leftBlank(word).toUpperCase();
+        //return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
     }
     protected String rightBlankWithCase(String word){
-        String rightBlank = rightBlank(word);
-        return isUpper ? rightBlank.toUpperCase() : rightBlank.toLowerCase();
+        return rightBlank(word).toUpperCase();
+        //return isUpper ? rightBlank.toUpperCase() : rightBlank.toLowerCase();
     }
     protected String leftRightBlankWithCase(String word){
-        String leftRightBlank = leftRightBlank(word);
-        return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
+        return leftRightBlank(word).toUpperCase();
+        //return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
     }
 
     @Override
