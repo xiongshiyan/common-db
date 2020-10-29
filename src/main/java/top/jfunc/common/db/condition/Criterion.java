@@ -27,8 +27,9 @@ public interface Criterion extends Serializable {
 
 
     /**
-     * 获取sql 片段，参数处使用?代替
-     * 对应的参数使用{@link Criterion#getParameters()} ()}
+     * 获取sql 片段，参数处使用?代替或者具名参数
+     * ?对应的参数使用{@link Criterion#getParameters()}，
+     * :具名参数使用{@link Criterion#getParameterMap()}
      * @return 返回 SQL 字符串片段
      *
      */

@@ -96,4 +96,15 @@ public class ConditionJdbcTest {
         System.out.println(conditions.toJdbcSql());
         System.out.println(conditions.getParameters());
     }
+    @Test
+    public void testMappedParameter() {
+        Conditions conditions = new Conditions();
+
+        conditions.add(new MappedExpression("t.name", Op.EQ, "name","熊诗言"));
+        conditions.add(new MappedExpression("t.age", Op.GE, "age",12));
+
+        System.out.println(conditions.toJdbcSql());
+        System.out.println(conditions.getParameterMap());
+        //System.out.println(conditions.toMybatisSql());
+    }
 }
