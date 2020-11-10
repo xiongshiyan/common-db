@@ -90,7 +90,7 @@ public interface QueryBuilder{
      */
     QueryBuilder and(boolean append, String condition, Object... params);
     /**
-     * 增加条件or子句
+     * 增加or子句，直接拼接or子句
      * @param condition like t1.id=?
      * @param params 参数
      * @return this
@@ -101,6 +101,18 @@ public interface QueryBuilder{
      * @see QueryBuilder#or(String, Object...)
      */
     QueryBuilder or(boolean append, String condition, Object... params);
+    /**
+     * 增加or子句，前后分别用()括起来，再用or连接
+     * @param condition like t1.id=?
+     * @param params 参数
+     * @return this
+     */
+    QueryBuilder orNew(String condition, Object... params);
+    /**
+     * 根据条件决定是否添加条件
+     * @see QueryBuilder#orNew(String, Object...)
+     */
+    QueryBuilder orNew(boolean append, String condition, Object... params);
     /**
      * addIn("d.id" , 1,2,3) - > d.id IN (1,2,3)
      * addIn("d.phone" , "1","2","3") - > d.id IN ('1','2','3')

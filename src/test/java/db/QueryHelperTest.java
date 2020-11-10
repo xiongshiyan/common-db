@@ -91,6 +91,32 @@ public class QueryHelperTest {
         Assert.assertEquals("SELECT * FROM activity a WHERE a.name='xx' AND a.id IN (SELECT code FROM base_table)" , helper.getSql());
     }
     @Test
+    public void testOr(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.addCondition("a.name=?" , "xx");
+        helper.addCondition("a.age=?" , 1);
+        helper.or("a.id=?" , 2);
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.name='xx' AND a.age=1 OR a.id=2" , helper.getSql());
+    }
+    @Test(expected = RuntimeException.class)
+    public void testOrEx(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.or("a.id=?" , 2);
+    }
+    @Test
+    public void testOrNew(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.addCondition("a.name=?" , "xx");
+        helper.addCondition("a.age=?" , 1);
+        helper.orNew("a.id=?" , 2);
+        Assert.assertEquals("SELECT * FROM activity a WHERE (a.name='xx' AND a.age=1) OR (a.id=2)" , helper.getSql());
+    }
+    @Test(expected = RuntimeException.class)
+    public void testOrNewEx(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.orNew("a.id=?" , 2);
+    }
+    @Test
     public void testAddParams(){
         QueryHelper helper = new QueryHelper("SELECT *", "tcm_cmcc_order_extend tcoe" , "cmcc co" , "member_org mo");
         helper.addCondition("tcoe.cmcc_id=co.id");

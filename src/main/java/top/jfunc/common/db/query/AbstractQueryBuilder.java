@@ -79,7 +79,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     public AbstractQueryBuilder(SqlBuilder sqlBuilder, String select, String tableName, String alias){
         this(sqlBuilder);
         this.selectClause = addSelectIfNecessary(select);
-        fromClause.append(leftRightBlankWithCase(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
+        fromClause.append(leftRightBlank(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
 
     /**
@@ -89,10 +89,10 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     public AbstractQueryBuilder(SqlBuilder sqlBuilder, String select, String... froms){
         this(sqlBuilder);
         this.selectClause = addSelectIfNecessary(select);
-        String prefix = leftRightBlankWithCase(SqlKeyword.FROM.getKeyword());
+        String prefix = leftRightBlank(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
         //去除空格取前5个[from ]
-        if(startsWith(froms[0] , rightBlankWithCase(SqlKeyword.FROM.getKeyword()))){
+        if(startsWith(froms[0] , rightBlank(SqlKeyword.FROM.getKeyword()))){
             prefix = BLANK ;
         }
         fromClause.append(prefix).append(Joiner.on(COMMA).join(froms));
@@ -100,7 +100,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     private String addSelectIfNecessary(String select) {
         //if(INCLUDE_SELECT.matcher(select).matches()){
         //去除空格取前6个[select ]
-        String selectRightBlank = rightBlankWithCase(SqlKeyword.SELECT.getKeyword());
+        String selectRightBlank = rightBlank(SqlKeyword.SELECT.getKeyword());
         if(startsWith(select , selectRightBlank)){
             //包含了select
             return select;
@@ -146,7 +146,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
     @Override
     public THIS leftJoin(String joinClause){
-        String leftJoin = leftRightBlankWithCase(SqlKeyword.LEFT_JOIN.getKeyword());
+        String leftJoin = leftRightBlank(SqlKeyword.LEFT_JOIN.getKeyword());
         fromClause.append(leftJoin).append(joinClause);
         return myself();
     }
@@ -165,7 +165,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
     @Override
     public THIS rightJoin(String joinClause){
-        String rightJoin = leftRightBlankWithCase(SqlKeyword.RIGHT_JOIN.getKeyword());
+        String rightJoin = leftRightBlank(SqlKeyword.RIGHT_JOIN.getKeyword());
         fromClause.append(rightJoin).append(joinClause);
         return myself();
     }
@@ -184,7 +184,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
     @Override
     public THIS innerJoin(String joinClause){
-        String innerJoin = leftRightBlankWithCase(SqlKeyword.INNER_JOIN.getKeyword());
+        String innerJoin = leftRightBlank(SqlKeyword.INNER_JOIN.getKeyword());
         fromClause.append(innerJoin).append(joinClause);
         return myself();
     }
@@ -197,7 +197,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public THIS on(String onClause){
-        String on = leftRightBlankWithCase(SqlKeyword.ON.getKeyword());
+        String on = leftRightBlank(SqlKeyword.ON.getKeyword());
         fromClause.append(on).append(onClause);
         return myself();
     }
@@ -254,8 +254,13 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public THIS or(String condition, Object... params){
-        //OR 子句一般来说肯定不会是第一个，所以此时肯定存在了 WHERE
-        String or = leftRightBlankWithCase(SqlKeyword.OR.getKeyword());
+        //OR 子句一般来说不是第一个，所以此时肯定存在了 WHERE
+        int index = whereClause.toString().toUpperCase().indexOf(SqlKeyword.WHERE.getKeyword());
+        if(-1 == index){
+            throw new RuntimeException("还没有条件，不能使用or方法");
+        }
+
+        String or = leftRightBlank(SqlKeyword.OR.getKeyword());
         whereClause.append(or).append(condition);
         // 添加参数
         addParams(params);
@@ -266,6 +271,30 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     public THIS or(boolean append, String condition, Object... params) {
         if(append){
             or(condition, params);
+        }
+        return myself();
+    }
+
+    @Override
+    public THIS orNew(String condition, Object... params){
+        //找到where
+        int index = whereClause.toString().toUpperCase().indexOf(SqlKeyword.WHERE.getKeyword());
+        if(-1 == index){
+            throw new RuntimeException("还没有条件，不能使用orNew方法");
+        }
+        //以前的条件使用()包裹起来
+        whereClause.insert(index + 6, LEFT_BRAKET).append(RIGHT_BRAKET);
+        whereClause.append(leftRightBlank(SqlKeyword.OR.getKeyword()))
+                .append(LEFT_BRAKET).append(condition).append(RIGHT_BRAKET);
+        // 添加参数
+        addParams(params);
+        return myself();
+    }
+
+    @Override
+    public THIS orNew(boolean append, String condition, Object... params) {
+        if(append){
+            orNew(condition, params);
         }
         return myself();
     }
@@ -313,10 +342,10 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     private void addWhere() {
         if(whereClause.length() == 0){
-            String where = leftRightBlankWithCase(SqlKeyword.WHERE.getKeyword());
+            String where = leftRightBlank(SqlKeyword.WHERE.getKeyword());
             whereClause.append(where);
         } else{
-            String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
+            String and = leftRightBlank(SqlKeyword.AND.getKeyword());
             whereClause.append(and);
         }
     }
@@ -367,7 +396,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         // 拼接where
         addWhere();
         // 添加左括号
-        String in = leftRightBlankWithCase(sqlKeyword.getKeyword());
+        String in = leftRightBlank(sqlKeyword.getKeyword());
         whereClause.append(what).append(in).append(LEFT_BRAKET);
 
         ///
@@ -392,7 +421,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS in(String what, String inSubQuery) {
         addWhere();
-        whereClause.append(what).append(leftRightBlankWithCase(SqlKeyword.IN.getKeyword()))
+        whereClause.append(what).append(leftRightBlank(SqlKeyword.IN.getKeyword()))
                 .append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
         return myself();
     }
@@ -400,7 +429,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public QueryBuilder notIn(String what, String inSubQuery) {
         addWhere();
-        whereClause.append(what).append(leftRightBlankWithCase(SqlKeyword.NOT_IN.getKeyword()))
+        whereClause.append(what).append(leftRightBlank(SqlKeyword.NOT_IN.getKeyword()))
                 .append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
         return myself();
     }
@@ -426,13 +455,13 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS addOrderProperty(String propertyName, boolean asc){
         if(getOrderByClause().length() == 0){
-            String orderBy = leftRightBlankWithCase(SqlKeyword.ORDER_BY.getKeyword());
+            String orderBy = leftRightBlank(SqlKeyword.ORDER_BY.getKeyword());
             getOrderByClause().append(orderBy);
         } else{
             getOrderByClause().append(COMMA);
         }
-        String ascStr = leftRightBlankWithCase(SqlKeyword.ASC.getKeyword());
-        String descStr = leftRightBlankWithCase(SqlKeyword.DESC.getKeyword());
+        String ascStr = leftRightBlank(SqlKeyword.ASC.getKeyword());
+        String descStr = leftRightBlank(SqlKeyword.DESC.getKeyword());
         getOrderByClause().append(propertyName).append(asc ? ascStr : descStr);
         return myself();
     }
@@ -496,7 +525,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS addGroupProperty(String groupByName){
         if(getGroupByClause().length() == 0){
-            String groupBy = leftRightBlankWithCase(SqlKeyword.GROUP_BY.getKeyword());
+            String groupBy = leftRightBlank(SqlKeyword.GROUP_BY.getKeyword());
             getGroupByClause().append(groupBy).append(groupByName);
         } else{
             getGroupByClause().append(COMMA).append(groupByName);
@@ -521,10 +550,10 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS addHaving(String having , Object... params){
         if(getHavingClause().length() == 0){
-            String hav = leftRightBlankWithCase(SqlKeyword.HAVING.getKeyword());
+            String hav = leftRightBlank(SqlKeyword.HAVING.getKeyword());
             getHavingClause().append(hav).append(having);
         } else{
-            String and = leftRightBlankWithCase(SqlKeyword.AND.getKeyword());
+            String and = leftRightBlank(SqlKeyword.AND.getKeyword());
             getHavingClause().append(and).append(having);
         }
 
@@ -649,7 +678,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getCountQuerySqlWithoutPadding(){
-        String selectRightBlank = rightBlankWithCase(SqlKeyword.SELECT.getKeyword());
+        String selectRightBlank = rightBlank(SqlKeyword.SELECT.getKeyword());
         StringBuilder builder = new StringBuilder(selectRightBlank).append(" COUNT(*) AS totalRow ").append(fromClause).append(whereClause);
         if(null != groupByClause){
             builder.append(groupByClause);
@@ -720,16 +749,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return havingClause;
     }
 
-    protected String leftBlankWithCase(String word){
-        return leftBlank(word).toUpperCase();
+    protected String leftBlank(String word){
+        return SqlUtil.leftBlank(word);
         //return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
     }
-    protected String rightBlankWithCase(String word){
-        return rightBlank(word).toUpperCase();
+    protected String rightBlank(String word){
+        return SqlUtil.rightBlank(word);
         //return isUpper ? rightBlank.toUpperCase() : rightBlank.toLowerCase();
     }
-    protected String leftRightBlankWithCase(String word){
-        return leftRightBlank(word).toUpperCase();
+    protected String leftRightBlank(String word){
+        return SqlUtil.leftRightBlank(word);
         //return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
     }
 
