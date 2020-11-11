@@ -3,7 +3,7 @@ package top.jfunc.common.db.query;
 /**
  * @author xiongshiyan at 2020/9/15 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class OracleSqlBuilder implements SqlBuilder {
+public class OraclePageBuilder implements PageBuilder {
     @Override
     public String sqlWithPage(String selectClause, String sqlExceptSelect, int pageNumber, int pageSize) {
         int start = (pageNumber - 1) * pageSize;

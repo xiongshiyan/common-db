@@ -3,7 +3,7 @@ package top.jfunc.common.db.query;
 /**
  * @author xiongshiyan at 2020/9/15 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class SqlServerSqlBuilder implements SqlBuilder {
+public class SqlServerPageBuilder implements PageBuilder {
     @Override
     public String sqlWithPage(String selectClause, String sqlExceptSelect, int pageNumber, int pageSize) {
         int end = pageNumber * pageSize;

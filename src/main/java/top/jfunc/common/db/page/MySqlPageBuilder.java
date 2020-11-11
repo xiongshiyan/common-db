@@ -5,7 +5,7 @@ import static top.jfunc.common.db.query.SqlUtil.COMMA;
 /**
  * @author xiongshiyan at 2020/9/15 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class MySqlSqlBuilder implements SqlBuilder {
+public class MySqlPageBuilder implements PageBuilder {
     @Override
     public String sqlWithPage(String selectClause, String sqlExceptSelect, int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
