@@ -98,6 +98,14 @@ public class QueryHelperTest {
         helper.or("a.id=?" , 2);
         Assert.assertEquals("SELECT * FROM activity a WHERE a.name='xx' AND a.age=1 OR a.id=2" , helper.getSql());
     }
+    @Test
+    public void testOrMap(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.addMapCondition("a.name=:name" , "name","xx");
+        helper.addMapCondition("a.age=:age" , "age",1);
+        helper.orMapCondition("a.id=:id" , "id",2);
+        Assert.assertEquals("SELECT * FROM activity a WHERE a.name=:name AND a.age=:age OR a.id=:id" , helper.getSqlWithoutPadding());
+    }
     @Test(expected = RuntimeException.class)
     public void testOrEx(){
         QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
@@ -110,6 +118,14 @@ public class QueryHelperTest {
         helper.addCondition("a.age=?" , 1);
         helper.orNew("a.id=?" , 2);
         Assert.assertEquals("SELECT * FROM activity a WHERE (a.name='xx' AND a.age=1) OR (a.id=2)" , helper.getSql());
+    }
+    @Test
+    public void testOrNewMap(){
+        QueryHelper helper = new QueryHelper("SELECT *", "activity" , "a");
+        helper.addMapCondition("a.name=:name" , "name","xx");
+        helper.addMapCondition("a.age=:age" , "age",1);
+        helper.orNewMapCondition("a.id=:id" , "id",2);
+        Assert.assertEquals("SELECT * FROM activity a WHERE (a.name=:name AND a.age=:age) OR (a.id=:id)" , helper.getSqlWithoutPadding());
     }
     @Test(expected = RuntimeException.class)
     public void testOrNewEx(){

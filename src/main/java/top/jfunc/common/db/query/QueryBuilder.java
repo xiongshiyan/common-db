@@ -171,7 +171,10 @@ public interface QueryBuilder{
      */
     QueryBuilder addMapCondition(String condition, Object... keyValue);
     QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue);
-
+    QueryBuilder orMapCondition(String condition, Object... keyValue);
+    QueryBuilder orMapCondition(boolean append, String condition, Object... keyValue);
+    QueryBuilder orNewMapCondition(String condition, Object... keyValue);
+    QueryBuilder orNewMapCondition(boolean append, String condition, Object... keyValue);
     /**
      * @see top.jfunc.common.db.condition.Conditions
      * @see top.jfunc.common.db.condition.MappedExpression

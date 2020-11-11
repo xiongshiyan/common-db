@@ -254,14 +254,8 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public THIS or(String condition, Object... params){
-        //OR 子句一般来说不是第一个，所以此时肯定存在了 WHERE
-        int index = whereClause.toString().toUpperCase().indexOf(SqlKeyword.WHERE.getKeyword());
-        if(-1 == index){
-            throw new RuntimeException("还没有条件，不能使用or方法");
-        }
+        addOrCondition(condition);
 
-        String or = leftRightBlank(SqlKeyword.OR.getKeyword());
-        whereClause.append(or).append(condition);
         // 添加参数
         addParams(params);
         return myself();
@@ -275,17 +269,20 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         return myself();
     }
 
-    @Override
-    public THIS orNew(String condition, Object... params){
-        //找到where
+    private void addOrCondition(String condition) {
+        //OR 子句一般来说不是第一个，所以此时肯定存在了 WHERE
         int index = whereClause.toString().toUpperCase().indexOf(SqlKeyword.WHERE.getKeyword());
         if(-1 == index){
-            throw new RuntimeException("还没有条件，不能使用orNew方法");
+            throw new RuntimeException("还没有条件，不能使用or方法");
         }
-        //以前的条件使用()包裹起来
-        whereClause.insert(index + 6, LEFT_BRAKET).append(RIGHT_BRAKET);
-        whereClause.append(leftRightBlank(SqlKeyword.OR.getKeyword()))
-                .append(LEFT_BRAKET).append(condition).append(RIGHT_BRAKET);
+
+        String or = leftRightBlank(SqlKeyword.OR.getKeyword());
+        whereClause.append(or).append(condition);
+    }
+
+    @Override
+    public THIS orNew(String condition, Object... params){
+        addOrNewCondition(condition);
         // 添加参数
         addParams(params);
         return myself();
@@ -297,6 +294,18 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
             orNew(condition, params);
         }
         return myself();
+    }
+
+    private void addOrNewCondition(String condition) {
+        //找到where
+        int index = whereClause.toString().toUpperCase().indexOf(SqlKeyword.WHERE.getKeyword());
+        if(-1 == index){
+            throw new RuntimeException("还没有条件，不能使用orNew方法");
+        }
+        //以前的条件使用()包裹起来
+        whereClause.insert(index + 6, LEFT_BRAKET).append(RIGHT_BRAKET);
+        whereClause.append(leftRightBlank(SqlKeyword.OR.getKeyword()))
+                .append(LEFT_BRAKET).append(condition).append(RIGHT_BRAKET);
     }
 
     ////////////////////////////5.addMapCondition方法,添加 Map 条件,多个用 AND 连接////////////////////////////
@@ -321,6 +330,42 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     public THIS addMapCondition(boolean append, String condition, Object... keyValue) {
         if(append){
             addMapCondition(condition, keyValue);
+        }
+        return myself();
+    }
+
+    @Override
+    public QueryBuilder orMapCondition(String condition, Object... keyValue) {
+        addOrCondition(condition);
+
+        //添加map类型参数k1,v1,k2,v2...
+        addMapParams(keyValue);
+
+        return myself();
+    }
+
+    @Override
+    public QueryBuilder orMapCondition(boolean append, String condition, Object... keyValue) {
+        if(append){
+            orMapCondition(condition, keyValue);
+        }
+        return myself();
+    }
+
+    @Override
+    public QueryBuilder orNewMapCondition(String condition, Object... keyValue) {
+        addOrNewCondition(condition);
+
+        //添加map类型参数k1,v1,k2,v2...
+        addMapParams(keyValue);
+
+        return myself();
+    }
+
+    @Override
+    public QueryBuilder orNewMapCondition(boolean append, String condition, Object... keyValue) {
+        if(append){
+            orNewMapCondition(condition, keyValue);
         }
         return myself();
     }
