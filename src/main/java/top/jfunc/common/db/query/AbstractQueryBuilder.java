@@ -54,6 +54,9 @@ public abstract class AbstractQueryBuilder implements QueryBuilder{
     protected Map<String , Object> mapParameters;
 
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
+
+    public AbstractQueryBuilder(){}
+
     /**
      * 用于一张表的情况，生成From子句
      * from topic t

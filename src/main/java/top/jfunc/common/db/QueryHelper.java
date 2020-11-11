@@ -9,6 +9,9 @@ import top.jfunc.common.db.query.QueryBuilder;
  */
 public class QueryHelper extends AbstractQueryBuilder implements QueryBuilder {
 
+    public QueryHelper() {
+        super();
+    }
     public QueryHelper(String select, String tableName, String alias) {
         super(select, tableName, alias);
     }
