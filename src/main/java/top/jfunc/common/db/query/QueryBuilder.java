@@ -3,14 +3,13 @@ package top.jfunc.common.db.query;
 import top.jfunc.common.db.condition.Criterion;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * SQL的模式
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY .. LIMIT ..
  * @author xiongshiyan
  */
-public interface QueryBuilder{
+public interface QueryBuilder {
     boolean ASC = true;
     boolean DESC = false;
 
@@ -166,29 +165,6 @@ public interface QueryBuilder{
     QueryBuilder notExists(String sql);
 
     /**
-     * @param condition 具体条件
-     * @param keyValue 参数
-     */
-    QueryBuilder addMapCondition(String condition, Object... keyValue);
-    QueryBuilder addMapCondition(boolean append, String condition, Object... keyValue);
-    QueryBuilder orMapCondition(String condition, Object... keyValue);
-    QueryBuilder orMapCondition(boolean append, String condition, Object... keyValue);
-    QueryBuilder orNewMapCondition(String condition, Object... keyValue);
-    QueryBuilder orNewMapCondition(boolean append, String condition, Object... keyValue);
-    /**
-     * @see top.jfunc.common.db.condition.Conditions
-     * @see top.jfunc.common.db.condition.MappedExpression
-     */
-    QueryBuilder addMapCondition(Criterion criterion);
-
-    /**
-     * 增加map类型的having子句
-     */
-    QueryBuilder addMapHaving(String having, Object... keyValue);
-    QueryBuilder addMapHaving(boolean append, String having, Object... keyValue);
-    Map<String, Object> getMapParameters();
-
-    /**
      * 增加order by子句
      * @param propertyName like t1.time
      * @param asc 升序还是降序
@@ -250,14 +226,10 @@ public interface QueryBuilder{
     String getCountQuerySqlWithoutPadding();
 
     /**
-     * 获取list类型参数
+     * 获取收集的参数
      */
-    List<Object> getListParameters();
+    Object getParameters();
 
-    /**
-     * 获取array类型参数
-     */
-    Object[] getArrayParameters();
     /**
      * From后面的所有语句 , 处理了 ? 参数的
      * @see QueryBuilder#getSqlExceptSelectWithoutPadding()
@@ -284,10 +256,5 @@ public interface QueryBuilder{
      * @param sql sql
      * @return sql
      */
-    default String paddingParam(String sql) {
-        //处理问号
-        String handleQuote = SqlUtil.paddingParam(sql, getListParameters());
-        //处理map参数
-        return SqlUtil.paddingParam(handleQuote , getMapParameters());
-    }
+    String paddingParam(String sql);
 }
