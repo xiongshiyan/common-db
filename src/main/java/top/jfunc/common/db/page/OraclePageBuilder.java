@@ -1,4 +1,4 @@
-package top.jfunc.common.db.query;
+package top.jfunc.common.db.page;
 
 /**
  * @author xiongshiyan at 2020/9/15 , contact me with email yanshixiong@126.com or phone 15208384257

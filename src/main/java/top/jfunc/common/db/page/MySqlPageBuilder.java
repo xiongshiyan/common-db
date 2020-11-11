@@ -1,4 +1,7 @@
-package top.jfunc.common.db.query;
+package top.jfunc.common.db.page;
+
+import top.jfunc.common.db.query.SqlKeyword;
+import top.jfunc.common.db.query.SqlUtil;
 
 import static top.jfunc.common.db.query.SqlUtil.COMMA;
 

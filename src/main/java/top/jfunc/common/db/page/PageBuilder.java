@@ -1,4 +1,4 @@
-package top.jfunc.common.db.query;
+package top.jfunc.common.db.page;
 
 /**
  * 不同数据库处理分页
