@@ -230,14 +230,6 @@ public interface QueryBuilder{
      */
     QueryBuilder addHaving(boolean append, String having, Object... params);
     /**
-     * 增加分页条件
-     * @param pageNumber pageNumber based on 1
-     * @param pageSize pageSize
-     * @return this
-     */
-    QueryBuilder paging(int pageNumber, int pageSize);
-
-    /**
      * 获取select子句
      */
     String getSelect();

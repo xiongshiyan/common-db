@@ -1,6 +1,5 @@
 package top.jfunc.common.db.query;
 
-import top.jfunc.common.ChainCall;
 import top.jfunc.common.db.condition.Criterion;
 import top.jfunc.common.utils.ArrayUtil;
 import top.jfunc.common.utils.CollectionUtil;
@@ -10,14 +9,13 @@ import top.jfunc.common.utils.StrUtil;
 import java.util.*;
 
 import static top.jfunc.common.db.query.SqlUtil.*;
-import static top.jfunc.common.db.query.SqlUtil.leftRightBlank;
 
 /**
  * SQL的模式
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> implements QueryBuilder , ChainCall<THIS>{
+public abstract class AbstractQueryBuilder implements QueryBuilder{
     /**
      * 关键字连接是否是大写 , 但是由于select 和 from 子句是在构造器中 , 需自行指定
      */
@@ -55,29 +53,12 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     protected Map<String , Object> mapParameters;
 
-    /**
-     * 分页语句拼装
-     */
-    private SqlBuilder sqlBuilder;
-
-    /**
-     * 默认-1表示没有分页数据，based on 1
-     */
-    protected int pageNumber = -1;
-    protected int pageSize = 10;
-
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
-
-    public AbstractQueryBuilder(SqlBuilder sqlBuilder) {
-        this.sqlBuilder = sqlBuilder;
-    }
-
     /**
      * 用于一张表的情况，生成From子句
      * from topic t
      */
-    public AbstractQueryBuilder(SqlBuilder sqlBuilder, String select, String tableName, String alias){
-        this(sqlBuilder);
+    public AbstractQueryBuilder(String select, String tableName, String alias){
         this.selectClause = addSelectIfNecessary(select);
         fromClause.append(leftRightBlank(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
@@ -86,8 +67,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * 用于两张表联合的情况，生成From子句，类似from table1 a,table2 b 然后添加where条件
      * 另外像left join 这种可以写在一个from字句中或者使用 leftJoin rightJoin innerJoin方法
      */
-    public AbstractQueryBuilder(SqlBuilder sqlBuilder, String select, String... froms){
-        this(sqlBuilder);
+    public AbstractQueryBuilder(String select, String... froms){
         this.selectClause = addSelectIfNecessary(select);
         String prefix = leftRightBlank(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
@@ -110,25 +90,25 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         }
     }
 
-    public THIS setSelectClause(String selectClause) {
+    public AbstractQueryBuilder setSelectClause(String selectClause) {
         this.selectClause = selectClause;
-        return myself();
+        return this;
     }
 
-    public THIS setFromClause(String fromClause) {
+    public AbstractQueryBuilder setFromClause(String fromClause) {
         this.fromClause = new StringBuilder(fromClause);
-        return myself();
+        return this;
     }
 
 
     ///
     /*public THIS keyWordUpper() {
         isUpper = true;
-        return myself();
+        return this;
     }
     public THIS keyWordLower() {
         isUpper = false;
-        return myself();
+        return this;
     }*/
 
     //////////////////////////////////////2.1.leftJoin方法,添加LEFT JOIN子句/////////////////////////////////////
@@ -139,16 +119,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param onClause on条件 有一个添加在后面 , 不要带 ON 了 , 没有必须使用on方法添加
      */
     @Override
-    public THIS leftJoin(String joinClause , String onClause){
+    public AbstractQueryBuilder leftJoin(String joinClause , String onClause){
         leftJoin(joinClause);
         on(onClause);
-        return myself();
+        return this;
     }
     @Override
-    public THIS leftJoin(String joinClause){
+    public AbstractQueryBuilder leftJoin(String joinClause){
         String leftJoin = leftRightBlank(SqlKeyword.LEFT_JOIN.getKeyword());
         fromClause.append(leftJoin).append(joinClause);
-        return myself();
+        return this;
     }
 
     //////////////////////////////////////2.2.rightJoin方法,添加RIGHT JOIN子句/////////////////////////////////////
@@ -158,16 +138,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param joinClause RIGHT JOIN 子句
      */
     @Override
-    public THIS rightJoin(String joinClause , String onClause){
+    public AbstractQueryBuilder rightJoin(String joinClause , String onClause){
         rightJoin(joinClause);
         on(onClause);
-        return myself();
+        return this;
     }
     @Override
-    public THIS rightJoin(String joinClause){
+    public AbstractQueryBuilder rightJoin(String joinClause){
         String rightJoin = leftRightBlank(SqlKeyword.RIGHT_JOIN.getKeyword());
         fromClause.append(rightJoin).append(joinClause);
-        return myself();
+        return this;
     }
 
     //////////////////////////////////////2.3.innerJoin方法,添加INNER JOIN子句/////////////////////////////////////
@@ -177,16 +157,16 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param joinClause INNER JOIN 子句
      */
     @Override
-    public THIS innerJoin(String joinClause , String onClause){
+    public AbstractQueryBuilder innerJoin(String joinClause , String onClause){
         innerJoin(joinClause);
         on(onClause);
-        return myself();
+        return this;
     }
     @Override
-    public THIS innerJoin(String joinClause){
+    public AbstractQueryBuilder innerJoin(String joinClause){
         String innerJoin = leftRightBlank(SqlKeyword.INNER_JOIN.getKeyword());
         fromClause.append(innerJoin).append(joinClause);
-        return myself();
+        return this;
     }
 
     //////////////////////////////////////2.4.on方法,join子句添加on条件/////////////////////////////////////
@@ -196,10 +176,10 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param onClause ON 子句
      */
     @Override
-    public THIS on(String onClause){
+    public AbstractQueryBuilder on(String onClause){
         String on = leftRightBlank(SqlKeyword.ON.getKeyword());
         fromClause.append(on).append(onClause);
-        return myself();
+        return this;
     }
 
     ////////////////////////////3.addCondition/and/andIf方法,添加条件,多个用 AND 连接////////////////////////////
@@ -207,44 +187,44 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     /**
      * 拼接where子句 d.id between ? and ?   d.parent=?    d.parent is null
      * 跟 and(String, Object...) 的意义完全一致
-     * @see THIS#and(String, Object...)
+     * @see AbstractQueryBuilder#and(String, Object...)
      * @param condition 具体条件
      * @param params 参数,THIS只支持？参数，如果你想用Query的具名参数，就不要设置参数，产生{Query}后再调用setParameter设置
      */
     @Override
-    public THIS addCondition(String condition, Object... params){
+    public AbstractQueryBuilder addCondition(String condition, Object... params){
         // 拼接条件
         addWhereAndCondition(condition);
         // 添加参数
         addParams(params);
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addCondition(boolean append, String condition, Object... params) {
+    public AbstractQueryBuilder addCondition(boolean append, String condition, Object... params) {
         if(append){
             addCondition(condition, params);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public QueryBuilder addCondition(Criterion criterion) {
+    public AbstractQueryBuilder addCondition(Criterion criterion) {
         addCondition(criterion.toJdbcSql(), criterion.getParameters().toArray());
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS and(String condition, Object... params) {
+    public AbstractQueryBuilder and(String condition, Object... params) {
         return addCondition(condition , params);
     }
 
     @Override
-    public THIS and(boolean append, String condition, Object... params) {
+    public AbstractQueryBuilder and(boolean append, String condition, Object... params) {
         if(append){
             addCondition(condition, params);
         }
-        return myself();
+        return this;
     }
 
     ////////////////////////////4.or/orIf方法,添加条件,多个用 OR 连接////////////////////////////
@@ -253,20 +233,20 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * 添加 OR 子句
      */
     @Override
-    public THIS or(String condition, Object... params){
+    public AbstractQueryBuilder or(String condition, Object... params){
         addOrCondition(condition);
 
         // 添加参数
         addParams(params);
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS or(boolean append, String condition, Object... params) {
+    public AbstractQueryBuilder or(boolean append, String condition, Object... params) {
         if(append){
             or(condition, params);
         }
-        return myself();
+        return this;
     }
 
     private void addOrCondition(String condition) {
@@ -281,19 +261,19 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
     @Override
-    public THIS orNew(String condition, Object... params){
+    public AbstractQueryBuilder orNew(String condition, Object... params){
         addOrNewCondition(condition);
         // 添加参数
         addParams(params);
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS orNew(boolean append, String condition, Object... params) {
+    public AbstractQueryBuilder orNew(boolean append, String condition, Object... params) {
         if(append){
             orNew(condition, params);
         }
-        return myself();
+        return this;
     }
 
     private void addOrNewCondition(String condition) {
@@ -316,22 +296,22 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param keyValue 模式k1,v1,k2,v2...(k1,k2必须是String)
      */
     @Override
-    public THIS addMapCondition(String condition, Object... keyValue){
+    public AbstractQueryBuilder addMapCondition(String condition, Object... keyValue){
         // 拼接参数
         addWhereAndCondition(condition);
 
         //添加map类型参数k1,v1,k2,v2...
         addMapParams(keyValue);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addMapCondition(boolean append, String condition, Object... keyValue) {
+    public AbstractQueryBuilder addMapCondition(boolean append, String condition, Object... keyValue) {
         if(append){
             addMapCondition(condition, keyValue);
         }
-        return myself();
+        return this;
     }
 
     @Override
@@ -341,37 +321,37 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         //添加map类型参数k1,v1,k2,v2...
         addMapParams(keyValue);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public QueryBuilder orMapCondition(boolean append, String condition, Object... keyValue) {
+    public AbstractQueryBuilder orMapCondition(boolean append, String condition, Object... keyValue) {
         if(append){
             orMapCondition(condition, keyValue);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public QueryBuilder orNewMapCondition(String condition, Object... keyValue) {
+    public AbstractQueryBuilder orNewMapCondition(String condition, Object... keyValue) {
         addOrNewCondition(condition);
 
         //添加map类型参数k1,v1,k2,v2...
         addMapParams(keyValue);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public QueryBuilder orNewMapCondition(boolean append, String condition, Object... keyValue) {
+    public AbstractQueryBuilder orNewMapCondition(boolean append, String condition, Object... keyValue) {
         if(append){
             orNewMapCondition(condition, keyValue);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public QueryBuilder addMapCondition(Criterion criterion) {
+    public AbstractQueryBuilder addMapCondition(Criterion criterion) {
         addWhereAndCondition(criterion.toJdbcSql());
 
         if(null == mapParameters){
@@ -379,7 +359,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         }
         mapParameters.putAll(criterion.getParameterMap());
 
-        return myself();
+        return this;
     }
 
     /**
@@ -402,34 +382,34 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     ///////////////////////////////////6.addIn方法,添加 IN 条件/////////////////////////////////////////////
 
     @Override
-    public <T> THIS addIn(String what , List<T> ins){
+    public <T> AbstractQueryBuilder addIn(String what , List<T> ins){
         if(CollectionUtil.isEmpty(ins)){
-            return myself();
+            return this;
         }
 
         inNotInClause(what, SqlKeyword.IN , ins);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public <T> THIS addIn(String what, T... ins) {
+    public <T> AbstractQueryBuilder addIn(String what, T... ins) {
         return addIn(what , Arrays.asList(ins));
     }
 
     @Override
-    public <T> THIS addNotIn(String what, List<T> ins) {
+    public <T> AbstractQueryBuilder addNotIn(String what, List<T> ins) {
         if(CollectionUtil.isEmpty(ins)){
-            return myself();
+            return this;
         }
 
         inNotInClause(what, SqlKeyword.NOT_IN , ins);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public <T> QueryBuilder addNotIn(String what, T... ins) {
+    public <T> AbstractQueryBuilder addNotIn(String what, T... ins) {
         return addNotIn(what , Arrays.asList(ins));
     }
 
@@ -464,30 +444,30 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
 
     @Override
-    public THIS in(String what, String inSubQuery) {
+    public AbstractQueryBuilder in(String what, String inSubQuery) {
         addWhere();
         whereClause.append(what).append(leftRightBlank(SqlKeyword.IN.getKeyword()))
                 .append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
-        return myself();
+        return this;
     }
 
     @Override
-    public QueryBuilder notIn(String what, String inSubQuery) {
+    public AbstractQueryBuilder notIn(String what, String inSubQuery) {
         addWhere();
         whereClause.append(what).append(leftRightBlank(SqlKeyword.NOT_IN.getKeyword()))
                 .append(LEFT_BRAKET).append(inSubQuery).append(RIGHT_BRAKET);
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS exists(String sql) {
+    public AbstractQueryBuilder exists(String sql) {
         addWhereAndCondition(SqlKeyword.EXISTS.getKeyword() + BLANK + LEFT_BRAKET + sql + RIGHT_BRAKET);
-        return myself();
+        return this;
     }
     @Override
-    public THIS notExists(String sql) {
+    public AbstractQueryBuilder notExists(String sql) {
         addWhereAndCondition(SqlKeyword.NOT_EXISTS.getKeyword() + BLANK + LEFT_BRAKET + sql + RIGHT_BRAKET);
-        return myself();
+        return this;
     }
 
     ///////////////////////////////////7.addOrderProperty方法,添加 ORDER BY 子句//////////////////////////////////
@@ -498,7 +478,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param asc true表示升序，false表示降序
      */
     @Override
-    public THIS addOrderProperty(String propertyName, boolean asc){
+    public AbstractQueryBuilder addOrderProperty(String propertyName, boolean asc){
         if(getOrderByClause().length() == 0){
             String orderBy = leftRightBlank(SqlKeyword.ORDER_BY.getKeyword());
             getOrderByClause().append(orderBy);
@@ -508,57 +488,57 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         String ascStr = leftRightBlank(SqlKeyword.ASC.getKeyword());
         String descStr = leftRightBlank(SqlKeyword.DESC.getKeyword());
         getOrderByClause().append(propertyName).append(asc ? ascStr : descStr);
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addAscOrderProperty(String propertyName) {
+    public AbstractQueryBuilder addAscOrderProperty(String propertyName) {
         return addOrderProperty(propertyName , ASC);
     }
 
     @Override
-    public THIS addAscOrderProperty(String... propertyNames) {
+    public AbstractQueryBuilder addAscOrderProperty(String... propertyNames) {
         for (String propertyName : propertyNames) {
             addAscOrderProperty(propertyName);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addDescOrderProperty(String propertyName) {
+    public AbstractQueryBuilder addDescOrderProperty(String propertyName) {
         return addOrderProperty(propertyName , DESC);
     }
 
     @Override
-    public THIS addDescOrderProperty(String... propertyNames) {
+    public AbstractQueryBuilder addDescOrderProperty(String... propertyNames) {
         for (String propertyName : propertyNames) {
             addDescOrderProperty(propertyName);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addOrderProperty(boolean append, String propertyName, boolean asc) {
+    public AbstractQueryBuilder addOrderProperty(boolean append, String propertyName, boolean asc) {
         if(append){
             addOrderProperty(propertyName, asc);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addAscOrderProperty(boolean append, String propertyName) {
+    public AbstractQueryBuilder addAscOrderProperty(boolean append, String propertyName) {
         if(append){
             addOrderProperty(propertyName, ASC);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addDescOrderProperty(boolean append, String propertyName) {
+    public AbstractQueryBuilder addDescOrderProperty(boolean append, String propertyName) {
         if(append){
             addOrderProperty(propertyName , DESC);
         }
-        return myself();
+        return this;
     }
 
     ///////////////////////////////////8.addGroupProperty方法,添加 GROUP BY 子句//////////////////////////////////
@@ -568,22 +548,22 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param groupByName group by
      */
     @Override
-    public THIS addGroupProperty(String groupByName){
+    public AbstractQueryBuilder addGroupProperty(String groupByName){
         if(getGroupByClause().length() == 0){
             String groupBy = leftRightBlank(SqlKeyword.GROUP_BY.getKeyword());
             getGroupByClause().append(groupBy).append(groupByName);
         } else{
             getGroupByClause().append(COMMA).append(groupByName);
         }
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addGroupProperty(String... groupByNames) {
+    public AbstractQueryBuilder addGroupProperty(String... groupByNames) {
         for (String groupByName : groupByNames) {
             addGroupProperty(groupByName);
         }
-        return myself();
+        return this;
     }
 
     ///////////////////////////////////9.addHaving方法,添加 HAVING 子句//////////////////////////////////
@@ -593,7 +573,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param params 参数
      */
     @Override
-    public THIS addHaving(String having , Object... params){
+    public AbstractQueryBuilder addHaving(String having , Object... params){
         if(getHavingClause().length() == 0){
             String hav = leftRightBlank(SqlKeyword.HAVING.getKeyword());
             getHavingClause().append(hav).append(having);
@@ -604,15 +584,15 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
         addParams(params);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addHaving(boolean append, String having, Object... params) {
+    public AbstractQueryBuilder addHaving(boolean append, String having, Object... params) {
         if(append){
             addHaving(having , params);
         }
-        return myself();
+        return this;
     }
 
     /**
@@ -621,22 +601,22 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * @param keyValue 模式k1,v1,k2,v2...
      */
     @Override
-    public THIS addMapHaving(String having, Object... keyValue){
+    public AbstractQueryBuilder addMapHaving(String having, Object... keyValue){
         // 拼接having
         addHaving(having);
 
         //增加map参数
         addMapParams(keyValue);
 
-        return myself();
+        return this;
     }
 
     @Override
-    public THIS addMapHaving(boolean append, String having, Object... keyValue) {
+    public AbstractQueryBuilder addMapHaving(boolean append, String having, Object... keyValue) {
         if(append){
             addMapHaving(having , keyValue);
         }
-        return myself();
+        return this;
     }
 
     private void addMapParams(Object... keyValue) {
@@ -661,19 +641,6 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
             parameters = new LinkedList<>();
         }
         parameters.addAll(Arrays.asList(params));
-    }
-    @Override
-    public THIS paging(int pageNumber, int pageSize) {
-        if(pageNumber <= 0){
-            throw new IllegalArgumentException("pageNumber must be greater than 0 , but " + pageNumber);
-        }
-        if(pageSize <= 0){
-            throw new IllegalArgumentException("pageSize must be greater than 0 , but " + pageSize);
-        }
-
-        this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
-        return myself();
     }
 
     ///////////////////////////////////10.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
@@ -709,11 +676,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSqlWithoutPadding(){
-        if(-1 == pageNumber){
-            return selectClause + getSqlExceptSelectWithoutPadding();
-        }
-
-        return sqlBuilder.sqlWithPage(selectClause , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
+        return selectClause + getSqlExceptSelectWithoutPadding();
     }
 
     /**
