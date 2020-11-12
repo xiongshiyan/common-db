@@ -17,6 +17,7 @@ public class PageTest {
         String s = new MySqlPageBuilder().sqlWithPage(helper.getSelect(), helper.getSqlExceptSelect(), 1, 10);
         Assert.assertEquals(expected, s);
 
+        helper.setPageBuilder(MySqlPageBuilder.getInstance());
         helper.page(1,10);
         Assert.assertEquals(expected,helper.getSqlWithoutPadding());
 
