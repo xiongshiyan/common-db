@@ -7,13 +7,13 @@ import java.util.*;
  * 对具名参数的支持
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class NamedQueryBuilder extends CommonQueryBuilder<NamedQueryBuilder> implements QueryBuilder{
+public class NamedQueryBuilder extends AbstractQueryBuilder<NamedQueryBuilder>{
     /**
      * map类型的参数
      */
     protected Map<String , Object> mapParameters;
 
-    public NamedQueryBuilder(){}
+    public NamedQueryBuilder(){super();}
 
     public NamedQueryBuilder(String select, String tableName, String alias){
         super(select, tableName, alias);
@@ -22,13 +22,25 @@ public class NamedQueryBuilder extends CommonQueryBuilder<NamedQueryBuilder> imp
         super(select, froms);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void addParams(Object... keyValue) {
-        if(0 != (keyValue.length % 2)){
-            throw new IllegalArgumentException("参数必须符合模式k1,v1,k2,v2...");
-        }
         if(null == mapParameters){
             mapParameters = new LinkedHashMap<>();
+        }
+
+        //只有一个参数并且是map
+        if(keyValue.length == 1){
+            Object o = keyValue[0];
+            if(o instanceof Map){
+                mapParameters.putAll((Map<String, Object>) o);
+                return;
+            }
+        }
+
+
+        if(0 != (keyValue.length % 2)){
+            throw new IllegalArgumentException("参数必须符合模式k1,v1,k2,v2...");
         }
         int kvLen = keyValue.length / 2;
         for (int i = 0; i < kvLen; i++) {
@@ -51,29 +63,17 @@ public class NamedQueryBuilder extends CommonQueryBuilder<NamedQueryBuilder> imp
         return this;
     }
 
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getMapParameters() {
+        return (Map<String, Object>) getParameters();
+    }
+
     @Override
     public Object getParameters() {
         if(null == mapParameters){
             return new LinkedHashMap<>();
         }
         return mapParameters;
-    }
-
-    public Map<String, Object> getMapParameters() {
-        if(null == mapParameters){
-            return new LinkedHashMap<>();
-        }
-        return mapParameters;
-    }
-
-    @Override
-    public Object[] getArrayParameters() {
-        throw new UnsupportedOperationException("具名参数builder不允许获取此类参数");
-    }
-
-    @Override
-    public List<Object> getListParameters() {
-        throw new UnsupportedOperationException("具名参数builder不允许获取此类参数");
     }
 
     @Override

@@ -2,12 +2,13 @@ package top.jfunc.common.db.query;
 
 import top.jfunc.common.ChainCall;
 import top.jfunc.common.db.condition.Criterion;
-import top.jfunc.common.utils.ArrayUtil;
 import top.jfunc.common.utils.CollectionUtil;
 import top.jfunc.common.utils.Joiner;
 import top.jfunc.common.utils.StrUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static top.jfunc.common.db.query.SqlUtil.*;
 
@@ -16,11 +17,7 @@ import static top.jfunc.common.db.query.SqlUtil.*;
  *   SELECT .. FROM .. (LEFT|RIGHT|INNER) JOIN .. ON .. WHERE .... GROUP BY .. HAVING .. ORDER BY
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements QueryBuilder, ChainCall<THIS> {
-    /**
-     * 关键字连接是否是大写 , 但是由于select 和 from 子句是在构造器中 , 需自行指定
-     */
-    //protected boolean isUpper = true;
+public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> implements QueryBuilder, ChainCall<THIS> {
     /**
      * select子句
      */
@@ -45,20 +42,16 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
      * order by子句
      */
     protected StringBuilder orderByClause = null;
-    /**
-     * 参数列表
-     */
-    protected List<Object> parameters;
 
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
 
-    public CommonQueryBuilder(){}
+    public AbstractQueryBuilder(){}
 
     /**
      * 用于一张表的情况，生成From子句
      * from topic t
      */
-    public CommonQueryBuilder(String select, String tableName, String alias){
+    public AbstractQueryBuilder(String select, String tableName, String alias){
         this.selectClause = addSelectIfNecessary(select);
         fromClause.append(leftRightBlank(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
@@ -67,7 +60,7 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
      * 用于两张表联合的情况，生成From子句，类似from table1 a,table2 b 然后添加where条件
      * 另外像left join 这种可以写在一个from字句中或者使用 leftJoin rightJoin innerJoin方法
      */
-    public CommonQueryBuilder(String select, String... froms){
+    public AbstractQueryBuilder(String select, String... froms){
         this.selectClause = addSelectIfNecessary(select);
         String prefix = leftRightBlank(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
@@ -99,17 +92,6 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
         this.fromClause = new StringBuilder(fromClause);
         return myself();
     }
-
-
-    ///
-    /*public THIS keyWordUpper() {
-        isUpper = true;
-        return myself();
-    }
-    public THIS keyWordLower() {
-        isUpper = false;
-        return myself();
-    }*/
 
     //////////////////////////////////////2.1.leftJoin方法,添加LEFT JOIN子句/////////////////////////////////////
 
@@ -522,15 +504,11 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
         }
     }
 
-    protected void addParams(Object... params) {
-        if(ArrayUtil.isEmpty(params)){
-            return;
-        }
-        if(null == parameters){
-            parameters = new LinkedList<>();
-        }
-        parameters.addAll(Arrays.asList(params));
-    }
+    /**
+     * 添加参数
+     * @param params 参数
+     */
+    protected abstract void addParams(Object... params);
 
     ///////////////////////////////////10.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
 
@@ -541,6 +519,7 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
     public String getSelect(){
         return this.selectClause;
     }
+
     /**
      * From后面的所有语句 , 没有处理 ?
      * @see THIS#getSqlExceptSelect()
@@ -586,48 +565,8 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
         }
         return builder.toString();
     }
-    /**
-     * 获取SQL中的参数值列表，List返回
-     * @see THIS#addCondition(String, Object...)
-     * @see THIS#and(String, Object...)
-     */
-    public List<Object> getListParameters(){
-        if(null == parameters){
-            return new LinkedList<>();
-        }
-        return parameters;
-    }
-
-    /**
-     * 获取SQL中的参数值列表，Array返回
-     * @see THIS#addCondition(String, Object...)
-     * @see THIS#and(String, Object...)
-     */
-    public Object[] getArrayParameters(){
-        List<Object> listParameters = getListParameters();
-        return listParameters.toArray(new Object[listParameters.size()]);
-    }
 
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object getParameters() {
-        if(null == parameters){
-            return new LinkedList<>();
-        }
-        return parameters;
-    }
-
-    /**
-     * 处理参数，处理了?和map类型的参数
-     * @param sql sql
-     * @return sql
-     */
-    @Override
-    public String paddingParam(String sql) {
-        //处理问号
-        return SqlUtil.paddingParam(sql, getListParameters());
-    }
 
     public StringBuilder getOrderByClause() {
         if(null == orderByClause){
@@ -652,15 +591,12 @@ public class CommonQueryBuilder<THIS extends CommonQueryBuilder> implements Quer
 
     protected String leftBlank(String word){
         return SqlUtil.leftBlank(word);
-        //return isUpper ? leftBlank.toUpperCase() : leftBlank.toLowerCase();
     }
     protected String rightBlank(String word){
         return SqlUtil.rightBlank(word);
-        //return isUpper ? rightBlank.toUpperCase() : rightBlank.toLowerCase();
     }
     protected String leftRightBlank(String word){
         return SqlUtil.leftRightBlank(word);
-        //return isUpper ? leftRightBlank.toUpperCase() : leftRightBlank.toLowerCase();
     }
 
     @Override

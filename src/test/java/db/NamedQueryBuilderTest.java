@@ -8,22 +8,28 @@ import top.jfunc.common.db.condition.Op;
 import top.jfunc.common.db.condition.Restrictions;
 import top.jfunc.common.db.query.NamedQueryBuilder;
 
+import java.util.HashMap;
+
 /**
  * @author xiongshiyan at 2018/5/10
- * QueryHelper的简单测试，也是介绍其用法
+ * NamedQueryBuilder的简单测试，也是介绍其用法
  */
-public class MapQueryBuilderTest {
+public class NamedQueryBuilderTest {
     /**
      * QueryHelper简单拼装 :参数名
      */
     @Test
     public void testNamedParamMap(){
         NamedQueryBuilder helper = new NamedQueryBuilder("SELECT *", "tcm_cmcc_order_extend" , "tcoe");
-        helper.addCondition("tcoe.tcm_state=:state" , "state" , 0);
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("state", 0);
+        helper.addCondition("tcoe.tcm_state=:state" , map);
         helper.addCondition("tcoe.user_id=:userId" , "userId" , "123");
 
         Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.tcm_state=:state AND tcoe.user_id=:userId",helper.getSqlWithoutPadding());
         Assert.assertEquals(2 , helper.getMapParameters().size());
+        Assert.assertEquals(0 , helper.getMapParameters().get("state"));
+        Assert.assertEquals("123" , helper.getMapParameters().get("userId"));
         Assert.assertEquals("SELECT * FROM tcm_cmcc_order_extend tcoe WHERE tcoe.tcm_state=0 AND tcoe.user_id='123'",helper.getSql());
     }
 
