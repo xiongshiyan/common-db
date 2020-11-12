@@ -4,6 +4,7 @@ import top.jfunc.common.utils.ArrayUtil;
 import java.util.*;
 
 /**
+ * 支持 ?
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class JdbcQueryBuilder extends AbstractQueryBuilder<JdbcQueryBuilder>{
@@ -60,13 +61,12 @@ public class JdbcQueryBuilder extends AbstractQueryBuilder<JdbcQueryBuilder>{
     }
 
     /**
-     * 处理参数，处理了?和map类型的参数
+     * 处理参数，处理了 ? 参数
      * @param sql sql
      * @return sql
      */
     @Override
     public String paddingParam(String sql) {
-        //处理问号
         return SqlUtil.paddingParam(sql, getListParameters());
     }
 }

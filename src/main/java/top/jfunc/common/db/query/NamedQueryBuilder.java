@@ -1,10 +1,13 @@
 package top.jfunc.common.db.query;
 
 import top.jfunc.common.db.condition.Criterion;
+import top.jfunc.common.utils.ArrayUtil;
+
 import java.util.*;
 
 /**
  * 对具名参数的支持
+ * 形如 t.name=:name
  * @author xiongshiyan at 2019/12/12 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class NamedQueryBuilder extends AbstractQueryBuilder<NamedQueryBuilder>{
@@ -25,6 +28,9 @@ public class NamedQueryBuilder extends AbstractQueryBuilder<NamedQueryBuilder>{
     @SuppressWarnings("unchecked")
     @Override
     protected void addParams(Object... keyValue) {
+        if(ArrayUtil.isEmpty(keyValue)){
+            return;
+        }
         if(null == mapParameters){
             mapParameters = new LinkedHashMap<>();
         }
@@ -76,6 +82,11 @@ public class NamedQueryBuilder extends AbstractQueryBuilder<NamedQueryBuilder>{
         return mapParameters;
     }
 
+    /**
+     * 处理了 map 类型的参数
+     * @param sql sql
+     * @return sql
+     */
     @Override
     public String paddingParam(String sql) {
         return SqlUtil.paddingParam(sql , getMapParameters());
