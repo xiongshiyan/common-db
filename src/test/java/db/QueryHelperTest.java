@@ -4,11 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.common.db.QueryHelper;
 import top.jfunc.common.db.condition.Conditions;
-import top.jfunc.common.db.condition.MappedExpression;
-import top.jfunc.common.db.condition.Op;
 import top.jfunc.common.db.condition.Restrictions;
-import top.jfunc.common.db.page.*;
-import top.jfunc.common.db.query.*;
 
 /**
  * @author xiongshiyan at 2018/5/10

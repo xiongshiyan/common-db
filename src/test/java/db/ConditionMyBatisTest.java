@@ -2,7 +2,6 @@ package db;
 
 import org.junit.Test;
 import top.jfunc.common.db.condition.Conditions;
-import top.jfunc.common.db.condition.Disjunction;
 import top.jfunc.common.db.condition.Junction;
 import top.jfunc.common.db.condition.Restrictions;
 

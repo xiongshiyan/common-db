@@ -1,6 +1,5 @@
 package db;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import top.jfunc.common.db.bean.Record;
 import top.jfunc.common.db.sqlfilter.AbstractFilter;
