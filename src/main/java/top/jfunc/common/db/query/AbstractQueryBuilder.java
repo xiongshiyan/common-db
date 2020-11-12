@@ -53,7 +53,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     public AbstractQueryBuilder(String select, String tableName, String alias){
         this.selectClause = addSelectIfNecessary(select);
-        fromClause.append(leftRightBlank(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
+        fromClause.append(rightBlank(SqlKeyword.FROM.getKeyword())).append(tableName).append(BLANK).append(alias);
     }
 
     /**
@@ -62,10 +62,10 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     public AbstractQueryBuilder(String select, String... froms){
         this.selectClause = addSelectIfNecessary(select);
-        String prefix = leftRightBlank(SqlKeyword.FROM.getKeyword());
+        String prefix = rightBlank(SqlKeyword.FROM.getKeyword());
         //if(INCLUDE_FROM.matcher(froms[0]).matches()){
         //去除空格取前5个[from ]
-        if(startsWith(froms[0] , rightBlank(SqlKeyword.FROM.getKeyword()))){
+        if(startsWith(froms[0] , prefix)){
             prefix = BLANK ;
         }
         fromClause.append(prefix).append(Joiner.on(COMMA).join(froms));
@@ -83,12 +83,12 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         }
     }
 
-    public THIS setSelectClause(String selectClause) {
-        this.selectClause = selectClause;
+    public THIS setSelectClause(CharSequence selectClause) {
+        this.selectClause = selectClause.toString();
         return myself();
     }
 
-    public THIS setFromClause(String fromClause) {
+    public THIS setFromClause(CharSequence fromClause) {
         this.fromClause = new StringBuilder(fromClause);
         return myself();
     }
@@ -274,7 +274,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     protected void addWhere() {
         if(whereClause.length() == 0){
-            String where = leftRightBlank(SqlKeyword.WHERE.getKeyword());
+            String where = rightBlank(SqlKeyword.WHERE.getKeyword());
             whereClause.append(where);
         } else{
             String and = leftRightBlank(SqlKeyword.AND.getKeyword());
@@ -457,7 +457,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     @Override
     public THIS addGroupProperty(String groupByName){
         if(getGroupByClause().length() == 0){
-            String groupBy = leftRightBlank(SqlKeyword.GROUP_BY.getKeyword());
+            String groupBy = rightBlank(SqlKeyword.GROUP_BY.getKeyword());
             getGroupByClause().append(groupBy).append(groupByName);
         } else{
             getGroupByClause().append(COMMA).append(groupByName);
@@ -496,7 +496,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
     protected void addHavingClause(String having) {
         if(getHavingClause().length() == 0){
-            String hav = leftRightBlank(SqlKeyword.HAVING.getKeyword());
+            String hav = rightBlank(SqlKeyword.HAVING.getKeyword());
             getHavingClause().append(hav).append(having);
         } else{
             String and = leftRightBlank(SqlKeyword.AND.getKeyword());
@@ -517,7 +517,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSelect(){
-        return this.selectClause;
+        return rightBlank(selectClause);
     }
 
     /**
@@ -526,15 +526,15 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSqlExceptSelectWithoutPadding(){
-        StringBuilder builder = new StringBuilder(fromClause).append(whereClause);
+        StringBuilder builder = new StringBuilder(middleBlank(fromClause.toString() , whereClause.toString()).trim());
         if(null != groupByClause){
-            builder.append(groupByClause);
+            builder.append(leftBlank(groupByClause.toString()));
         }
         if(null != havingClause){
-            builder.append(havingClause);
+            builder.append(leftBlank(havingClause.toString()));
         }
         if(null != orderByClause){
-            builder.append(orderByClause);
+            builder.append(leftBlank(orderByClause.toString()));
         }
         return builder.toString();
     }
@@ -544,7 +544,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSqlWithoutPadding(){
-        String sql = selectClause + getSqlExceptSelectWithoutPadding();
+        String sql = middleBlank(selectClause , getSqlExceptSelectWithoutPadding());
         return sql.trim();
     }
 
@@ -555,13 +555,12 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getCountQuerySqlWithoutPadding(){
-        String selectRightBlank = rightBlank(SqlKeyword.SELECT.getKeyword());
-        StringBuilder builder = new StringBuilder(selectRightBlank).append(" COUNT(*) AS totalRow ").append(fromClause).append(whereClause);
+        StringBuilder builder = new StringBuilder(SqlKeyword.SELECT.getKeyword()).append(" COUNT(*) AS totalRow ").append(middleBlank(fromClause.toString() , whereClause.toString()).trim());
         if(null != groupByClause){
-            builder.append(groupByClause);
+            builder.append(leftBlank(groupByClause.toString()));
         }
         if(null != havingClause){
-            builder.append(havingClause);
+            builder.append(leftBlank(havingClause.toString()));
         }
         return builder.toString();
     }
