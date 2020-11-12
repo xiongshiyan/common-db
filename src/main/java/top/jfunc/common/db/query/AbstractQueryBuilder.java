@@ -517,7 +517,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSelect(){
-        return rightBlank(selectClause);
+        return selectClause;
     }
 
     /**
@@ -536,7 +536,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
         if(null != orderByClause){
             builder.append(leftBlank(orderByClause.toString()));
         }
-        return builder.toString();
+        return leftBlank(builder.toString());
     }
     /**
      * 获取最终拼装的SQL , 没有处理 ?
