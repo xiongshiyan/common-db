@@ -14,6 +14,6 @@ public class MySqlPageBuilder implements PageBuilder {
         int offset = (pageNumber - 1) * pageSize;
         String limit = SqlUtil.leftRightBlank(SqlKeyword.LIMIT.getKeyword());
         String limitClause = limit + offset + COMMA + pageSize;
-        return selectClause + sqlExceptSelect + limitClause;
+        return SqlUtil.middleBlank(selectClause , sqlExceptSelect) + limitClause;
     }
 }

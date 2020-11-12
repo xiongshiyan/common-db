@@ -24,19 +24,41 @@ public class SqlUtil {
      * 在左边添加空格
      */
     public static String leftBlank(String word){
+        if(word.startsWith(BLANK)){
+            return word;
+        }
         return BLANK + word;
     }
     /**
      * 在右边添加空格
      */
     public static String rightBlank(String word){
+        if(word.endsWith(BLANK)){
+            return word;
+        }
         return word + BLANK;
     }
     /**
-     * 在左右量边添加空格
+     * 中间用空格连接
+     */
+    public static String middleBlank(String word1, String word2){
+        if(word1.endsWith(BLANK) || word2.startsWith(BLANK)){
+            return word1 + word2;
+        }
+        return word1 + BLANK + word2;
+    }
+    /**
+     * 在左右两边添加空格
      */
     public static String leftRightBlank(String word){
-        return BLANK + word + BLANK;
+        if(!word.startsWith(BLANK)){
+            word = BLANK + word;
+        }
+        if(!word.endsWith(BLANK)){
+            word = word + BLANK;
+        }
+
+        return word;
     }
 
     /**

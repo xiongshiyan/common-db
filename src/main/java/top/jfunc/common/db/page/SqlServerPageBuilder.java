@@ -1,5 +1,7 @@
 package top.jfunc.common.db.page;
 
+import top.jfunc.common.db.query.SqlUtil;
+
 /**
  * @author xiongshiyan at 2020/9/15 , contact me with email yanshixiong@126.com or phone 15208384257
  */
@@ -14,9 +16,10 @@ public class SqlServerPageBuilder implements PageBuilder {
         if (begin < 0) {
             begin = 0;
         }
+        String select = selectClause.replaceFirst("(?i)select", "");
         return "SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM " +
                 " ( SELECT TOP " + end + " tempcolumn=0," +
-                selectClause.replaceFirst("(?i)select", "") + " " + sqlExceptSelect +
-                ")vip)mvp where temprownumber>" + begin;
+                    SqlUtil.middleBlank(select, sqlExceptSelect)
+                + ")vip)mvp where temprownumber>" + begin;
     }
 }

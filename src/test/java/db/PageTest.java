@@ -23,7 +23,7 @@ public class PageTest {
     public void testOracle() {
         QueryHelper helper = getQueryHelper();
         String s = new OraclePageBuilder().sqlWithPage(helper.getSelect(), helper.getSqlExceptSelect(), 1, 10);
-        Assert.assertEquals("select * from ( select row_.*, rownum rownum_ from (  SELECT *  FROM table t ) row_ where rownum <= 10) table_alias where table_alias.rownum_ > 0", s);
+        Assert.assertEquals("select * from ( select row_.*, rownum rownum_ from (  SELECT * FROM table t ) row_ where rownum <= 10) table_alias where table_alias.rownum_ > 0", s);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class PageTest {
     public void testSqlserver() {
         QueryHelper helper = getQueryHelper();
         String s = new SqlServerPageBuilder().sqlWithPage(helper.getSelect(), helper.getSqlExceptSelect(), 1, 10);
-        Assert.assertEquals("SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM  ( SELECT TOP 10 tempcolumn=0, *  FROM table t)vip)mvp where temprownumber>0", s);
+        Assert.assertEquals("SELECT * FROM ( SELECT row_number() over (order by tempcolumn) temprownumber, * FROM  ( SELECT TOP 10 tempcolumn=0, * FROM table t)vip)mvp where temprownumber>0", s);
     }
 
     private QueryHelper getQueryHelper() {

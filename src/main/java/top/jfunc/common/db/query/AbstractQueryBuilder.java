@@ -368,12 +368,12 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
     @Override
     public THIS exists(String sql) {
-        addWhereAndCondition(SqlKeyword.EXISTS.getKeyword() + BLANK + LEFT_BRAKET + sql + RIGHT_BRAKET);
+        addWhereAndCondition(middleBlank(SqlKeyword.EXISTS.getKeyword() , LEFT_BRAKET + sql + RIGHT_BRAKET));
         return myself();
     }
     @Override
     public THIS notExists(String sql) {
-        addWhereAndCondition(SqlKeyword.NOT_EXISTS.getKeyword() + BLANK + LEFT_BRAKET + sql + RIGHT_BRAKET);
+        addWhereAndCondition(middleBlank(SqlKeyword.NOT_EXISTS.getKeyword() , LEFT_BRAKET + sql + RIGHT_BRAKET));
         return myself();
     }
 
@@ -594,6 +594,9 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
     protected String rightBlank(String word){
         return SqlUtil.rightBlank(word);
+    }
+    protected String middleBlank(String word1, String word2){
+        return SqlUtil.middleBlank(word1, word2);
     }
     protected String leftRightBlank(String word){
         return SqlUtil.leftRightBlank(word);
