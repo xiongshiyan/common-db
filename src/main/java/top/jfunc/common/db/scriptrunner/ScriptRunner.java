@@ -26,8 +26,6 @@ import java.sql.*;
  */
 public class ScriptRunner{
 
-    // private static final Log log = LogFactory.getLog(ScriptRunner.class);
-
     private Connection  connection;
     private String      driver;
     private String      url;
@@ -210,7 +208,6 @@ public class ScriptRunner{
             }
         }
         catch(SQLException|IOException e){
-            e.fillInStackTrace();
             printlnError("Error executing: " + command);
             printlnError(e);
             throw e;

@@ -50,12 +50,7 @@ public class Record implements Serializable {
 		return this;
 	}
 	public Record removeNullValueColumns() {
-		for (java.util.Iterator<Map.Entry<String, Object>> it = getColumns().entrySet().iterator(); it.hasNext();) {
-			Map.Entry<String, Object> e = it.next();
-			if (e.getValue() == null) {
-				it.remove();
-			}
-		}
+		getColumns().entrySet().removeIf(e -> e.getValue() == null);
 		return this;
 	}
 	

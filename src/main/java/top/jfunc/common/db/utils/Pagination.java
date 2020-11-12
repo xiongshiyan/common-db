@@ -2,7 +2,6 @@ package top.jfunc.common.db.utils;
 
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
-import top.jfunc.common.db.QueryHelper;
 import top.jfunc.common.db.bean.Page;
 import top.jfunc.common.db.bean.Record;
 import top.jfunc.common.db.query.AbstractQueryBuilder;

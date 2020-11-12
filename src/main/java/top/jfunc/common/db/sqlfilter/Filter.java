@@ -25,7 +25,7 @@ public interface Filter<T> extends Predicate<T>{
      */
     default List<T> filter(List<T> records){
         Objects.requireNonNull(records);
-        return records.stream().filter(this::test).collect(Collectors.toList());
+        return records.stream().filter(this).collect(Collectors.toList());
 
         /*Iterator<Record> iterator = records.iterator();
         while (iterator.hasNext()) {
