@@ -2,6 +2,8 @@ package top.jfunc.common.db.query;
 
 import top.jfunc.common.ChainCall;
 import top.jfunc.common.db.condition.Criterion;
+import top.jfunc.common.db.page.MySqlPageBuilder;
+import top.jfunc.common.db.page.PageBuilder;
 import top.jfunc.common.utils.CollectionUtil;
 import top.jfunc.common.utils.Joiner;
 import top.jfunc.common.utils.StrUtil;
@@ -42,6 +44,38 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      * order by子句
      */
     protected StringBuilder orderByClause = null;
+
+    /**
+     * 默认-1表示没有分页参数
+     */
+    protected int pageNumber = -1;
+    protected int pageSize = 10;
+
+    private static PageBuilder DEFAULT_PAGE_BUILDER = MySqlPageBuilder.getInstance();
+    /**
+     * 全局设置pageBuilder
+     * @param pageBuilder pageBuilder
+     */
+    public static void initDefaultPageBuilder(PageBuilder pageBuilder){
+        DEFAULT_PAGE_BUILDER = pageBuilder;
+    }
+    /**
+     * 分页参数处理器，默认是mysql的
+     */
+    protected PageBuilder pageBuilder = DEFAULT_PAGE_BUILDER;
+    /**
+     * 设置此pageBuilder
+     * @param pageBuilder pageBuilder
+     * @return this
+     */
+    public THIS setPageBuilder(PageBuilder pageBuilder) {
+        this.pageBuilder = pageBuilder;
+        return myself();
+    }
+
+    public PageBuilder getPageBuilder() {
+        return pageBuilder;
+    }
 
     //////////////////////////////////////1.构造方法,确定基本的表和查询字段/////////////////////////////////////
 
@@ -510,6 +544,22 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     protected abstract void addParams(Object... params);
 
+    @Override
+    public THIS page(int pageNumber, int pageSize) {
+        if(pageNumber<=0){
+            throw new IllegalArgumentException("pageNumber must >= 1");
+        }
+        if(pageSize<=0){
+            throw new IllegalArgumentException("pageSize must >= 1");
+        }
+
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+
+        return myself();
+    }
+
+
     ///////////////////////////////////10.get相关方法,获取到组装的SQL语句，可以处理和不处理参数//////////////////////////////////
 
     /**
@@ -544,8 +594,13 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
      */
     @Override
     public String getSqlWithoutPadding(){
-        String sql = middleBlank(selectClause , getSqlExceptSelectWithoutPadding());
-        return sql.trim();
+        //没有设置分页参数的情况下
+        if(-1 == pageNumber){
+            String sql = middleBlank(selectClause , getSqlExceptSelectWithoutPadding());
+            return sql.trim();
+        }
+
+        return pageBuilder.sqlWithPage(selectClause , getSqlExceptSelectWithoutPadding() , pageNumber , pageSize);
     }
 
     /**

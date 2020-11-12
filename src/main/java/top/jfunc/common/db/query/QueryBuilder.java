@@ -205,6 +205,15 @@ public interface QueryBuilder {
      * @see QueryBuilder#addHaving(String, Object...)
      */
     QueryBuilder addHaving(boolean append, String having, Object... params);
+
+    /**
+     * 添加分页参数
+     * @param pageNumber based on 1
+     * @param pageSize pageSize
+     * @return this
+     */
+    QueryBuilder page(int pageNumber, int pageSize);
+
     /**
      * 获取select子句
      */
