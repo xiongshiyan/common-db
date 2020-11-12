@@ -5,6 +5,7 @@ import org.hibernate.transform.Transformers;
 import top.jfunc.common.db.QueryHelper;
 import top.jfunc.common.db.bean.Page;
 import top.jfunc.common.db.bean.Record;
+import top.jfunc.common.db.query.AbstractQueryBuilder;
 import top.jfunc.common.utils.Map2Bean;
 
 import javax.persistence.EntityManager;
@@ -16,10 +17,12 @@ import java.util.regex.Pattern;
 
 /**
  * @author xiongshiyan at 2018/5/9
- * @see top.jfunc.common.db.QueryHelper
+ * @see top.jfunc.common.db.query.AbstractQueryBuilder
+ * @see top.jfunc.common.db.query.JdbcQueryBuilder
+ * @see top.jfunc.common.db.query.NamedQueryBuilder
  * @see top.jfunc.common.db.bean.Record
- * SQL语句用{@link QueryHelper}封装。结果集用JavaBean或者{@link Record}来封装。JavaBean需要保证别名就是属性。
- * 可以使用{@link QueryHelper}完全处理参数，也可以不处理，支持?和:的方式
+ * SQL语句用{@link AbstractQueryBuilder}封装。结果集用JavaBean或者{@link Record}来封装。JavaBean需要保证别名就是属性。
+ * 可以使用{@link AbstractQueryBuilder}完全处理参数，也可以不处理，支持?和:的方式
  */
 public class Pagination {
     private EntityManager entityManager;
@@ -175,12 +178,11 @@ public class Pagination {
     }
 
     /**
-     *
      * @param pageNumber pageNumber
      * @param pageSize pageSize
      * @param isGroupBySql 是否包含Group by语句，影响总行数
-     * @param nativeSQL 原生SQL语句 {@link QueryHelper}
-     * @param nativeCountSQL 原生求总行数的SQL语句 {@link QueryHelper}
+     * @param nativeSQL 原生SQL语句 {@link AbstractQueryBuilder}
+     * @param nativeCountSQL 原生求总行数的SQL语句 {@link AbstractQueryBuilder}
      * @param clazz JavaBean风格的DTO或者Record，需要用别名跟JavaBean对应
      * @param <T> 返回JavaBean风格的DTO或者Record
      * @param params 按照顺序给条件
@@ -236,12 +238,11 @@ public class Pagination {
         return new Page<T>(list, pageNumber, pageSize, totalPage, (int)totalRow);
     }
     /**
-     *
      * @param pageNumber pageNumber
      * @param pageSize pageSize
      * @param isGroupBySql 是否包含Group by语句，影响总行数
-     * @param nativeSQL 原生SQL语句 {@see QueryHelper}
-     * @param nativeCountSQL 原生求总行数的SQL语句 {@link QueryHelper}
+     * @param nativeSQL 原生SQL语句 {@link AbstractQueryBuilder}
+     * @param nativeCountSQL 原生求总行数的SQL语句 {@link AbstractQueryBuilder}
      * @param clazz JavaBean风格的DTO或者Record，需要用别名跟JavaBean对应
      * @param <T> 返回JavaBean风格的DTO或者Record
      * @param searchMap k-v条件

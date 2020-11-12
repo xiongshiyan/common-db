@@ -203,7 +203,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     /**
      * 拼接where子句 d.id between ? and ?   d.parent=?    d.parent is null
      * 跟 and(String, Object...) 的意义完全一致
-     * @see THIS#and(String, Object...)
+     * @see AbstractQueryBuilder#and(String, Object...)
      * @param condition 具体条件
      * @param params 参数,THIS只支持？参数，如果你想用Query的具名参数，就不要设置参数，产生{Query}后再调用setParameter设置
      */
@@ -572,7 +572,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
     /**
      * From后面的所有语句 , 没有处理 ?
-     * @see THIS#getSqlExceptSelect()
+     * @see AbstractQueryBuilder#getSqlExceptSelect()
      */
     @Override
     public String getSqlExceptSelectWithoutPadding(){
@@ -590,7 +590,7 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
     }
     /**
      * 获取最终拼装的SQL , 没有处理 ?
-     * @see THIS#getSql()
+     * @see AbstractQueryBuilder#getSql()
      */
     @Override
     public String getSqlWithoutPadding(){
@@ -605,8 +605,8 @@ public abstract class AbstractQueryBuilder<THIS extends AbstractQueryBuilder> im
 
     /**
      * 获取生成的用于查询总记录数的SQL语句 , 没有处理 ?
-     * @see THIS#getCountQuerySql()
-     * @see THIS#getSqlWithoutPadding()
+     * @see AbstractQueryBuilder#getCountQuerySql()
+     * @see AbstractQueryBuilder#getSqlWithoutPadding()
      */
     @Override
     public String getCountQuerySqlWithoutPadding(){

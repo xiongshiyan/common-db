@@ -23,9 +23,9 @@ public class DBHelper {
         this(url,username,password,"com.mysql.jdbc.Driver");
     }
     /**
-     * @param sql:查询SQL语句
-     * @throws SQLException SQL异常
      * 获取JDBC PrepareStatement(采用的是流数据接收方式，每次只从服务器接收部份数据，直到所有数据处理完毕，不会发生JVM OOM)
+     * @param sql 查询SQL语句
+     * @throws SQLException SQL异常
      */
     public PreparedStatement getPrepareStatement(String sql) throws SQLException {
         PreparedStatement pst;
